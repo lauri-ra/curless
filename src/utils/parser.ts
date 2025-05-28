@@ -1,6 +1,7 @@
 import { parseArgs } from 'jsr:@std/cli/parse-args';
+import { ParsedCommands } from '../types.ts';
 
-export function parseCliArgs(args: string[]) {
+export function parseCliArgs(args: string[]): ParsedCommands {
   const parsed = parseArgs(args, {
     boolean: ['version', 'help', 'interactive'],
     string: ['auth', 'data', 'env', 'header', 'H'],
