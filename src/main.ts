@@ -1,4 +1,5 @@
-import { showHelp, handleConfigMode, handleManualMode } from './commands/utils.ts';
+import { showHelp } from './commands/utils.ts';
+import { handleConfigMode, handleManualMode } from './commands/request.ts';
 import { parseCliArgs } from './utils/parser.ts';
 
 async function main() {

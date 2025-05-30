@@ -1,0 +1,38 @@
+environments:
+  dev:
+    baseUrl: "https://jsonplaceholder.typicode.com"
+
+secrets:
+  envFile: ".env" # Path to the file containing environment variables
+
+requests:
+  getAllPosts:
+    method: "GET"
+    path: "/posts"
+  getPostById:
+    method: "GET"
+    path: "/posts/{postId}" # Example of a path parameter
+  createPost:
+    method: "POST"
+    path: "/posts"
+    headers:
+      Content-Type: "application/json; charset=UTF-8"
+  updatePost:
+    method: "PUT"
+    path: "/posts/{postId}" # Example of a path parameter
+    headers:
+      Content-Type: "application/json; charset=UTF-8"
+  deletePost:
+    method: "DELETE"
+    path: "/posts/{postId}" # Example of a path parameter
+
+data_templates:
+  new_post_payload:
+    title: "foo"
+    body: "bar"
+    userId: 1
+  updated_post_payload:
+    id: 1 # Usually included when updating
+    title: "foo updated"
+    body: "bar updated"
+    userId: 1

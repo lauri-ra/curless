@@ -18,5 +18,5 @@ export function parseCliArgs(args: string[]): ParsedCommands {
     stopEarly: false,
   });
 
-  return parsed;
+  return parsed as ParsedCommands;
 }

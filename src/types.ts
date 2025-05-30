@@ -1,5 +1,5 @@
 export interface ParsedCommands {
-  _: (string | number)[];
+  _: string[];
   H: string[];
   header: string[];
   version: boolean;
