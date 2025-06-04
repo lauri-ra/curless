@@ -15,7 +15,15 @@ async function main() {
     Deno.exit();
   }
 
-  const httpMethods = new Set(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']);
+  const httpMethods = new Set([
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'PATCH',
+    'HEAD',
+    'OPTIONS',
+  ]);
   const positionalArgs = commands._;
 
   if (positionalArgs.length === 0) {
