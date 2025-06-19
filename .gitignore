@@ -1,1 +1,4 @@
 .env
+curless
+*.md
+*.yaml

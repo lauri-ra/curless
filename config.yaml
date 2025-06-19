@@ -25,6 +25,9 @@ requests:
   deletePost:
     method: "DELETE"
     path: "/posts/{postId}" # Example of a path parameter
+  getComments:
+    method: "GET"
+    path: "/comments"
 
 data_templates:
   new_post_payload:

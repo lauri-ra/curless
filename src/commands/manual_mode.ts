@@ -1,10 +1,9 @@
 // Handles making the HTTP requests
-import { loadConfig, resolveRequestDetails } from '../config/loader.ts';
-import { ParsedCommands } from '../types.ts';
-import { Config } from '../config/types.ts';
+import { ParsedCommands } from '../utils/types.ts';
 
 export async function handleManualMode(commands: ParsedCommands) {
   console.log('called manual mode with', commands);
+  // TODO: move to request builder
   // Extract method and URL
   const positionalArgs = commands._;
   const method = String(positionalArgs[0]).toUpperCase();
@@ -37,25 +36,4 @@ export async function handleManualMode(commands: ParsedCommands) {
 
   // Return response
   return data;
-}
-
-export async function handleConfigMode(commands: ParsedCommands) {
-  console.log('ran config mode with', commands);
-
-  // Load config.
-  const config = await loadConfig();
-
-  if (config) {
-    // Load correct parts from the config with the user given params.
-    const config = await loadConfig();
-
-    const request = resolveRequestDetails(config as Config, commands);
-
-    const response = await fetch(request);
-    const data = await response.json();
-    console.log(data);
-    return data;
-  }
-
-  return null;
 }
