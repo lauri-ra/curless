@@ -36,6 +36,6 @@ export interface Config {
   };
 }
 
-export type EnvDetails = NonNullable<Config['environments']>[string];
+export type EnvDetails = NonNullable<Config["environments"]>[string];
 
-export type RequestDefinition = NonNullable<Config['requests']>[string];
+export type RequestDefinition = NonNullable<Config["requests"]>[string];

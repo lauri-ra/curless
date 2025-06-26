@@ -1,8 +1,8 @@
 // Handles making the HTTP requests
-import { ParsedCommands } from '../utils/types.ts';
+import { ParsedCommands } from "../utils/types.ts";
 
 export async function handleManualMode(commands: ParsedCommands) {
-  console.log('called manual mode with', commands);
+  console.log("called manual mode with", commands);
   // TODO: move to request builder
   // Extract method and URL
   const positionalArgs = commands._;
@@ -12,7 +12,7 @@ export async function handleManualMode(commands: ParsedCommands) {
   // Extract headers
   const requestHeaders = new Headers();
   for (const h of commands.header) {
-    const [key, value] = h.split(':');
+    const [key, value] = h.split(":");
 
     if (!key || value.length === 0) {
       throw new Error(`Invalid header format! Use "Key:Value`);

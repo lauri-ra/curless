@@ -10,12 +10,12 @@ EXAMPLES:
   # Using config aliases
   curless createUser --auth apikey --data dummy_user --env dev
   curless getUser --auth token --env prod
-  
-  # Raw HTTP requests  
+
+  # Raw HTTP requests
   curless POST https://api.example.com/users \\
     -H "Authorization: Bearer xyz" \\
     -d '{"name":"Alice"}'
-    
+
   curless GET https://api.example.com/users/123 --verbose
 
 OPTIONS:
@@ -30,7 +30,7 @@ OPTIONS:
 
 CONFIGURATION:
   curless looks for curless.yaml in current directory or ~/.config/curless/
-  
+
   Run 'curless config init' to create an example configuration file.
 `;
 

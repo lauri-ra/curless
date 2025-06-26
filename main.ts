@@ -1,10 +1,10 @@
-import { run } from './CLI.ts';
+import { run } from "./src/CLI.ts";
 
 async function main() {
   try {
     await run();
   } catch (error) {
-    console.log('Encountered fatal error', error);
+    console.log("Encountered fatal error", error);
     Deno.exit(1);
   }
 }
