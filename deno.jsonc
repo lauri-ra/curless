@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "start": "deno run src/main.ts",
+    "start": "deno run main.ts",
     "lint": "deno lint",
     "compile": "deno compile --allow-read --allow-net ./main.ts --output ../curless",
   },
