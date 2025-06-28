@@ -12,6 +12,9 @@ requests:
   getPostById:
     method: "GET"
     path: "/posts/{postId}" # Example of a path parameter
+  getPostByIdTwo:
+    method: "GET"
+    path: "/posts/1"
   createPost:
     method: "POST"
     path: "/posts"

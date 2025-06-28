@@ -4,4 +4,7 @@
     "lint": "deno lint",
     "compile": "deno compile --allow-read --allow-net ./main.ts --output ../curless",
   },
+  "imports": {
+    "@std/fmt": "jsr:@std/fmt@^1.0.8",
+  },
 }

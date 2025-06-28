@@ -36,6 +36,11 @@ export interface Config {
   };
 }
 
+export interface ResponseData {
+  response: Response;
+  duration: number;
+}
+
 export type EnvDetails = NonNullable<Config["environments"]>[string];
 
 export type RequestDefinition = NonNullable<Config["requests"]>[string];

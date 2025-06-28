@@ -12,7 +12,7 @@ export async function handleConfigMode(commands: ParsedCommands) {
     const request = resolveRequestDetails(config as Config, commands);
     const response = await executeRequest(request);
 
-    return await handleResponse(response);
+    return await handleResponse(request, response);
   }
 
   return null;

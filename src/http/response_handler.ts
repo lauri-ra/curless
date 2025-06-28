@@ -1,7 +1,15 @@
+import { formatResponse } from "../output/response_formatter.ts";
+import { ResponseData } from "../utils/types.ts";
+
 /**
  * Handles and parses the response
  */
-export async function handleResponse(response: Response) {
+export async function handleResponse(
+  request: Request,
+  responseData: ResponseData,
+) {
+  const { response } = responseData;
+
   if (!response.ok) {
     console.error(
       `Error: Request failed with status ${response.status}: (${response.statusText})`,
@@ -10,8 +18,7 @@ export async function handleResponse(response: Response) {
 
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
-    const data = await response.json();
-    console.log(data);
+    await formatResponse(request, responseData);
     return;
   }
 
