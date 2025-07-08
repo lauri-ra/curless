@@ -116,13 +116,21 @@ function buildQueryString(commands: ParsedCommands): string {
   const knownCommandKeys = new Set([
     "_",
     "env",
+    "e",
     "data",
+    "d",
     "version",
     "v",
     "help",
     "h",
     "header",
     "H",
+    "interactive",
+    "i",
+    // Exclude deno specific flags.
+    "output",
+    "allow-read",
+    "allow-net",
   ]);
 
   // Append the query params that are not in the exlcusion list keys

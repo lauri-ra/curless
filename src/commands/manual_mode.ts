@@ -1,8 +1,9 @@
 // Handles making the HTTP requests
 import { ParsedCommands } from "../utils/types.ts";
+import { executeRequest } from "../http/client.ts";
+import { handleResponse } from "../http/response_handler.ts";
 
 export async function handleManualMode(commands: ParsedCommands) {
-  console.log("called manual mode with", commands);
   // TODO: move to request builder
   // Extract method and URL
   const positionalArgs = commands._;
@@ -28,12 +29,6 @@ export async function handleManualMode(commands: ParsedCommands) {
   });
 
   // Call HTTP request function
-  const response = await fetch(request);
-  const data = await response.json();
-  console.log(data);
-
-  // TODO: Call the output formatter
-
-  // Return response
-  return data;
+  const response = await executeRequest(request);
+  return await handleResponse(request, response);
 }

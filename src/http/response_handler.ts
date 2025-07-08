@@ -11,15 +11,14 @@ export async function handleResponse(
   const { response } = responseData;
 
   if (!response.ok) {
-    console.error(
-      `Error: Request failed with status ${response.status}: (${response.statusText})`,
-    );
+    const options = { showHeaders: false, showBody: false };
+    return formatResponse(request, responseData, options);
   }
 
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {
-    await formatResponse(request, responseData);
-    return;
+    const options = { showHeaders: true, showBody: true };
+    return await formatResponse(request, responseData, options);
   }
 
   // TODO: handle other content types.

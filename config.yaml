@@ -15,6 +15,9 @@ requests:
   getPostByIdTwo:
     method: "GET"
     path: "/posts/1"
+  getPostError:
+    method: "GET"
+    path: "/postsz/1"
   createPost:
     method: "POST"
     path: "/posts"

@@ -41,6 +41,11 @@ export interface ResponseData {
   duration: number;
 }
 
-export type EnvDetails = NonNullable<Config["environments"]>[string];
+export interface FormatOptions {
+  showHeaders?: boolean;
+  showBody?: boolean;
+}
 
-export type RequestDefinition = NonNullable<Config["requests"]>[string];
+export type EnvDetails = NonNullable<Config['environments']>[string];
+
+export type RequestDefinition = NonNullable<Config['requests']>[string];
