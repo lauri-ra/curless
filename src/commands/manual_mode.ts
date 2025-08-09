@@ -1,8 +1,13 @@
 // Handles making the HTTP requests
-import { ParsedCommands } from "../utils/types.ts";
-import { executeRequest } from "../http/client.ts";
-import { handleResponse } from "../http/response_handler.ts";
+import { ParsedCommands } from '../utils/types.ts';
+import { executeRequest } from '../http/client.ts';
+import { handleResponse } from '../http/response_handler.ts';
 
+/**
+ * Handles parsing the request from user given commands
+ * executing it and logging it to console.
+ * @param commands
+ */
 export async function handleManualMode(commands: ParsedCommands) {
   // TODO: move to request builder
   // Extract method and URL
@@ -13,7 +18,7 @@ export async function handleManualMode(commands: ParsedCommands) {
   // Extract headers
   const requestHeaders = new Headers();
   for (const h of commands.header) {
-    const [key, value] = h.split(":");
+    const [key, value] = h.split(':');
 
     if (!key || value.length === 0) {
       throw new Error(`Invalid header format! Use "Key:Value`);

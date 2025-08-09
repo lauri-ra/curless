@@ -3,7 +3,7 @@ import {
   EnvDetails,
   ParsedCommands,
   RequestDefinition,
-} from "../utils/types.ts";
+} from '../utils/types.ts';
 
 /**
  * Parses the request name and path parameters from positional arguments.
@@ -13,11 +13,11 @@ function parseRequestNameAndParams(positionalArgs: string[]) {
   const requestNameInput = positionalArgs[0];
 
   if (!requestNameInput) {
-    throw new Error("Request name not provided in command.");
+    throw new Error('Request name not provided in command.');
   }
 
-  if (requestNameInput.includes(":")) {
-    const [requestName, ...pathParams] = requestNameInput.split(":");
+  if (requestNameInput.includes(':')) {
+    const [requestName, ...pathParams] = requestNameInput.split(':');
     return { requestName, pathParams };
   }
 
@@ -41,7 +41,7 @@ function getRequestDefinition(config: Config, requestName: string) {
  */
 function getEnvironmentDetails(config: Config, env: string) {
   if (!env) {
-    throw new Error("Environment not specified. Use the --env flag.");
+    throw new Error('Environment not specified. Use the --env flag.');
   }
   const envDetails = config.environments?.[env];
   if (!envDetails) {
@@ -65,7 +65,7 @@ function getRequestBody(config: Config, templateName: string) {
     );
   }
 
-  if (typeof dataTemplate === "object" && dataTemplate !== null) {
+  if (typeof dataTemplate === 'object' && dataTemplate !== null) {
     return JSON.stringify(dataTemplate);
   }
 
@@ -89,11 +89,13 @@ function buildPath(
   // with placeholders from config, something is wrong and we log an error.
   if (placeholders.length !== pathParams.length) {
     throw new Error(
-      `Path '${configuredPath}' requires ${placeholders.length} parameter(s), but ${pathParams.length} were given. (Request: ${requestName}, Params: [${
-        pathParams.join(
-          ", ",
-        )
-      }])`,
+      `Path '${configuredPath}' requires ${
+        placeholders.length
+      } parameter(s), but ${
+        pathParams.length
+      } were given. (Request: ${requestName}, Params: [${pathParams.join(
+        ', ',
+      )}])`,
     );
   }
 
@@ -114,23 +116,23 @@ function buildQueryString(commands: ParsedCommands): string {
   const queryParams = new URLSearchParams();
   // TODO: place these in some shared location.
   const knownCommandKeys = new Set([
-    "_",
-    "env",
-    "e",
-    "data",
-    "d",
-    "version",
-    "v",
-    "help",
-    "h",
-    "header",
-    "H",
-    "interactive",
-    "i",
+    '_',
+    'env',
+    'e',
+    'data',
+    'd',
+    'version',
+    'v',
+    'help',
+    'h',
+    'header',
+    'H',
+    'interactive',
+    'i',
     // Exclude deno specific flags.
-    "output",
-    "allow-read",
-    "allow-net",
+    'output',
+    'allow-read',
+    'allow-net',
   ]);
 
   // Append the query params that are not in the exlcusion list keys
@@ -157,12 +159,12 @@ function constructUrl(
     throw new Error(`Base URL not defined for environment '${commands.env}'.`);
   }
 
-  const baseUrl = envDetails.baseUrl.endsWith("/")
+  const baseUrl = envDetails.baseUrl.endsWith('/')
     ? envDetails.baseUrl.slice(0, -1)
     : envDetails.baseUrl;
 
   const finalPath = buildPath(requestDefinition.path, pathParams, requestName);
-  const pathSegment = finalPath.startsWith("/")
+  const pathSegment = finalPath.startsWith('/')
     ? finalPath.slice(1)
     : finalPath;
 
@@ -175,6 +177,9 @@ function constructUrl(
 
 /**
  * Resolves all details of a request from the configuration and command-line arguments.
+ * @param config
+ * @param commands
+ * @returns Request
  */
 export function resolveRequestDetails(
   config: Config,

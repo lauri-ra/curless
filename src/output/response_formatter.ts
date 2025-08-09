@@ -50,6 +50,13 @@ function printStatusLines(request: Request, responseData: ResponseData) {
   console.log('');
 }
 
+/**
+ * Main function for handling response formatting.
+ * @param request
+ * @param responseData
+ * @param options
+ * @returns Logs out request & response data-
+ */
 export async function formatResponse(
   request: Request,
   responseData: ResponseData,
