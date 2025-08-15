@@ -2,6 +2,7 @@ import { parse } from 'jsr:@std/yaml';
 import { Config } from '../utils/types.ts';
 import { join, dirname, resolve } from 'jsr:@std/path';
 import { exists } from 'jsr:@std/fs';
+import { loadSecrets } from './secrets.ts';
 
 /**
  * Traverses the directory from the given path upwards looking for a config file.
@@ -12,7 +13,7 @@ import { exists } from 'jsr:@std/fs';
 async function findAndReadFile(
   startDir: string,
   filename: string,
-): Promise<string | null> {
+): Promise<{ content: string; path: string } | null> {
   // Resolve the starting point into a path
   let currentDir = resolve(startDir);
 
@@ -22,7 +23,8 @@ async function findAndReadFile(
 
     // Check if the config file exits in the current location.
     if (await exists(configPath, { isFile: true })) {
-      return Deno.readTextFile(configPath);
+      const content = await Deno.readTextFile(configPath);
+      return { content, path: configPath };
     }
 
     // Get the parent dir of current path.
@@ -42,21 +44,31 @@ async function findAndReadFile(
 export async function loadConfig(configPath?: string): Promise<Config | null> {
   try {
     let yamlString: string | null;
+    let foundConfigPath: string | undefined;
 
     if (configPath) {
       // First priority is to load the config from user provided path
       yamlString = await Deno.readTextFile(configPath);
     } else {
       // Attempt to search for the config updwards from current directory.
-      yamlString = await findAndReadFile(Deno.cwd(), 'curless.yaml');
+      const result = await findAndReadFile(Deno.cwd(), 'curless.yaml');
+
+      if (result) {
+        yamlString = result?.content;
+        foundConfigPath = result?.path;
+      } else {
+        yamlString = null;
+      }
     }
 
-    if (!yamlString) {
+    if (!yamlString || !foundConfigPath) {
       console.log('Config file not found. Please provide a path using');
       return null;
     }
 
     const parsedConfig = parse(yamlString) as Config;
+    await loadSecrets(parsedConfig, foundConfigPath);
+
     return parsedConfig;
   } catch (error) {
     console.log(error);

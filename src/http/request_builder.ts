@@ -1,3 +1,4 @@
+import { getSecret } from '../config/secrets.ts';
 import {
   Config,
   EnvDetails,
@@ -178,6 +179,39 @@ function constructUrl(
 }
 
 /**
+ * Goes through request headers and replaces secret
+ * placeholders with the actual values from the env file.
+ * @param headers
+ * @returns replaced headers
+ */
+function replaceHeaderSecrets(
+  headers: HeadersInit | undefined,
+): HeadersInit | undefined {
+  if (!headers) return undefined;
+
+  const processedHeaders: Record<string, string> = {};
+  const secretRegex = /\${([^{}]+)\}/g; // this matches ${SECRET_NAME}
+
+  for (const [key, value] of Object.entries(headers)) {
+    let processedValue = value;
+    let match;
+
+    while ((match = secretRegex.exec(value)) !== null) {
+      const secretName = match[1];
+      const secretValue = getSecret(secretName);
+      if (secretValue) {
+        processedValue = value.replace(match[0], secretValue);
+      } else {
+        throw new Error(`Secret ${match[0]} not found`);
+      }
+    }
+    processedHeaders[key] = processedValue;
+  }
+
+  return processedHeaders;
+}
+
+/**
  * Resolves all details of a request from the configuration and command-line arguments.
  * @param config
  * @param commands
@@ -187,12 +221,12 @@ export function resolveRequestDetails(
   config: Config,
   commands: ParsedCommands,
 ): Request {
-  // TODO: update typings.
   const { requestName, pathParams } = parseRequestNameAndParams(commands._);
 
   const requestDefinition = getRequestDefinition(config, requestName);
   const envDetails = getEnvironmentDetails(config, commands.env as string);
-  const bodyContent = getRequestBody(config, commands.data as string);
+  const body = getRequestBody(config, commands.data as string);
+  const headers = replaceHeaderSecrets(requestDefinition.headers);
 
   const fullUrl = constructUrl(
     envDetails,
@@ -204,8 +238,8 @@ export function resolveRequestDetails(
 
   const request = new Request(fullUrl, {
     method: requestDefinition.method.toUpperCase(),
-    headers: requestDefinition.headers,
-    body: bodyContent,
+    headers,
+    body,
   });
 
   return request;
