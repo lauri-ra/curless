@@ -129,6 +129,8 @@ function buildQueryString(commands: ParsedCommands): string {
     'H',
     'interactive',
     'i',
+    'config',
+    'c',
     // Exclude deno specific flags.
     'output',
     'allow-read',

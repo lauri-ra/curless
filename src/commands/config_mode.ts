@@ -10,7 +10,7 @@ import { handleResponse } from '../http/response_handler.ts';
  * @param commands
  */
 export async function handleConfigMode(commands: ParsedCommands) {
-  const config = await loadConfig();
+  const config = await loadConfig(commands?.config);
 
   if (config) {
     const request = resolveRequestDetails(config, commands);

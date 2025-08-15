@@ -8,6 +8,7 @@ export interface ParsedCommands {
   auth?: string;
   data?: string;
   env?: string;
+  config?: string;
   [key: string]: unknown;
 }
 
