@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "start": "deno run --allow-read --allow-net --allow-write main.ts",
+    "start": "deno run --allow-read --allow-net --allow-write --allow-env main.ts",
     "lint": "deno lint",
-    "compile": "deno compile --allow-read --allow-net --allow-write ./main.ts --output ../curless"
+    "compile": "deno compile --allow-read --allow-net --allow-write --allow-env ./main.ts --output ../curless"
   },
   "imports": {
     "@std/fmt": "jsr:@std/fmt@^1.0.8"

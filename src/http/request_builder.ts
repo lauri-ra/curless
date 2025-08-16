@@ -41,14 +41,27 @@ function getRequestDefinition(config: Config, requestName: string) {
  * Retrieves the environment details from the configuration.
  */
 function getEnvironmentDetails(config: Config, env: string) {
-  if (!env) {
-    throw new Error('Environment not specified. Use the --env flag.');
+  if (!config.environments || Object.keys(config.environments).length === 0) {
+    throw new Error('No envrionments specified in curless.yaml');
   }
-  const envDetails = config.environments?.[env];
-  if (!envDetails) {
-    throw new Error(`Environment '${env}' not found in configuration.`);
+
+  // The env flag is provided, try to return matching env from the config.
+  if (env) {
+    const envDetails = config.environments?.[env];
+    if (!envDetails) {
+      throw new Error(`Environment '${env}' not found in configuration.`);
+    }
+    return envDetails;
   }
-  return envDetails;
+
+  // No flag provided, so we try to find a default environment.
+  const defaultEntry = Object.entries(config.environments).find(
+    ([_name, details]) => details.default === true,
+  );
+  if (defaultEntry) return defaultEntry[1];
+
+  // If we got here, it means there is no valid environment in the config.
+  throw new Error('Environment not specified. Use the --env flag.');
 }
 
 /**
@@ -132,6 +145,8 @@ function buildQueryString(commands: ParsedCommands): string {
     'i',
     'config',
     'c',
+    'force',
+    'f',
     // Exclude deno specific flags.
     'output',
     'allow-read',

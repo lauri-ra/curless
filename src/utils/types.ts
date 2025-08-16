@@ -17,6 +17,7 @@ export interface Config {
     [key: string]: {
       baseUrl?: string;
       apiKey?: string;
+      default?: boolean;
       [key: string]: unknown;
     };
   };
