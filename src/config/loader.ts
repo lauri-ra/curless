@@ -3,6 +3,7 @@ import { Config } from '../utils/types.ts';
 import { join, dirname, resolve } from 'jsr:@std/path';
 import { exists } from 'jsr:@std/fs';
 import { loadSecrets } from './secrets.ts';
+import { printMessage } from '../output/response_formatter.ts';
 
 /**
  * Traverses the directory from the given path upwards looking for a config file.
@@ -62,7 +63,10 @@ export async function loadConfig(configPath?: string): Promise<Config | null> {
     }
 
     if (!yamlString || !foundConfigPath) {
-      console.log('Config file not found. Please provide a path using');
+      printMessage(
+        'error',
+        'Config file not found. Please provide a path using',
+      );
       return null;
     }
 
@@ -71,7 +75,7 @@ export async function loadConfig(configPath?: string): Promise<Config | null> {
 
     return parsedConfig;
   } catch (error) {
-    console.log(error);
+    printMessage('error', String(error));
     return null;
   }
 }

@@ -1,4 +1,4 @@
 .env
-curless
-*.md
 *.yaml
+*.md
+curless

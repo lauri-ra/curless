@@ -2,6 +2,8 @@ import { parseCliArgs } from './utils/parser.ts';
 import { showHelp } from './commands/help_command.ts';
 import { handleManualMode } from './commands/manual_mode.ts';
 import { handleConfigMode } from './commands/config_mode.ts';
+import { initCurless } from './commands/init_command.ts';
+import { printMessage } from './output/response_formatter.ts';
 
 export async function run() {
   const commands = parseCliArgs(Deno.args);
@@ -33,6 +35,11 @@ export async function run() {
     Deno.exit();
   }
 
+  if (String(positionalArgs[0]).toLowerCase() === 'init') {
+    await initCurless(Boolean(commands.force) || false);
+    Deno.exit();
+  }
+
   const firstArg = String(positionalArgs[0]).toUpperCase();
 
   try {
@@ -42,7 +49,7 @@ export async function run() {
       await handleConfigMode(commands);
     }
   } catch (error) {
-    console.log('Error', error);
+    printMessage('error', String(error));
     Deno.exit(1);
   }
 }

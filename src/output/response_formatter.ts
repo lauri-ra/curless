@@ -90,3 +90,9 @@ export async function formatResponse(
     console.log('');
   }
 }
+
+export function printMessage(type: 'error' | 'success', message: string) {
+  return type === 'error'
+    ? console.log(`${colors.red('✖')}` + ' ' + message)
+    : console.log(`${colors.green('✔')}` + ' ' + message);
+}

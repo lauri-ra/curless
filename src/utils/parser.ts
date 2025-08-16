@@ -3,7 +3,7 @@ import { ParsedCommands } from './types.ts';
 
 export function parseCliArgs(args: string[]): ParsedCommands {
   const parsed = parseArgs(args, {
-    boolean: ['version', 'help', 'interactive'],
+    boolean: ['version', 'help', 'interactive', 'force'],
     string: ['auth', 'data', 'env', 'header', 'H', 'config'],
     alias: {
       h: 'help',
@@ -14,6 +14,7 @@ export function parseCliArgs(args: string[]): ParsedCommands {
       a: 'auth',
       e: 'env',
       c: 'config',
+      f: 'force',
     },
     collect: ['header', 'H'],
     stopEarly: false,
