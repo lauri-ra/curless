@@ -136,7 +136,7 @@ function buildQueryString(commands: ParsedCommands): string {
     'data',
     'd',
     'version',
-    'v',
+    'V',
     'help',
     'h',
     'header',
@@ -147,6 +147,8 @@ function buildQueryString(commands: ParsedCommands): string {
     'c',
     'force',
     'f',
+    'verbose',
+    'v',
     // Exclude deno specific flags.
     'output',
     'allow-read',

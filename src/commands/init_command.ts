@@ -1,7 +1,8 @@
 import { stringify } from 'jsr:@std/yaml/stringify';
 import { printMessage } from '../output/response_formatter.ts';
+import { Config } from '../utils/types.ts';
 
-const config = {
+const config: Config = {
   environments: {
     dev: {
       baseUrl: 'https://jsonplaceholder.typicode.com',

@@ -16,7 +16,7 @@ export async function handleConfigMode(commands: ParsedCommands) {
     const request = resolveRequestDetails(config, commands);
     const response = await executeRequest(request);
 
-    return await handleResponse(request, response);
+    return await handleResponse(request, response, commands.verbose);
   }
 
   return null;

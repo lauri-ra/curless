@@ -63,7 +63,7 @@ export async function formatResponse(
   options: FormatOptions = {},
 ) {
   const { response } = responseData;
-  const { showHeaders = false, showBody = false } = options;
+  const { showHeaders = false, showBody = false, verbose = false } = options;
 
   // Print request and status lines.
   printStatusLines(request, responseData);
@@ -72,8 +72,7 @@ export async function formatResponse(
     // Print headers.
     console.log(colors.cyan(colors.bold('Headers')));
     for (const [key, value] of response.headers.entries()) {
-      // TODO: print all/most when verbose flag is on.
-      if (isImportantHeader(key)) {
+      if (verbose || isImportantHeader(key)) {
         console.log(`   ${colors.dim(key)}: ${value}`);
       }
     }

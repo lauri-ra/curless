@@ -5,6 +5,7 @@ export interface ParsedCommands {
   version: boolean;
   help: boolean;
   interactive: boolean;
+  verbose: boolean;
   auth?: string;
   data?: string;
   env?: string;
@@ -46,6 +47,7 @@ export interface ResponseData {
 export interface FormatOptions {
   showHeaders?: boolean;
   showBody?: boolean;
+  verbose?: boolean;
 }
 
 export type EnvDetails = NonNullable<Config['environments']>[string];

@@ -35,5 +35,5 @@ export async function handleManualMode(commands: ParsedCommands) {
 
   // Call HTTP request function
   const response = await executeRequest(request);
-  return await handleResponse(request, response);
+  return await handleResponse(request, response, commands.verbose);
 }
