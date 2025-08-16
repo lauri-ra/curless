@@ -16,11 +16,6 @@ export async function handleResponse(
     return formatResponse(request, responseData, options);
   }
 
-  const contentType = response.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    const options = { showHeaders: true, showBody: true, verbose };
-    return await formatResponse(request, responseData, options);
-  }
-
-  // TODO: handle other content types.
+  const options = { showHeaders: true, showBody: true, verbose };
+  return await formatResponse(request, responseData, options);
 }

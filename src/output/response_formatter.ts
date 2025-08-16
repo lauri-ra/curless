@@ -51,6 +51,84 @@ function printStatusLines(request: Request, responseData: ResponseData) {
 }
 
 /**
+ * Function parses, formats and applies some coloring
+ * to the passed in XML string using regex magic.
+ * @param xmlString
+ * @returns formatted and very nicely colored xml string
+ */
+function formatAndColorizeXml(xmlString: string): string {
+  let formattedXml = '';
+  let indentLevel = 0;
+
+  // Remove the XML declaration to simplify the parsing a little bit.
+  const declarationMatch = xmlString.match(/<\?xml[^>]*\?>\s*/);
+  const declaration = declarationMatch ? declarationMatch[0] : '';
+  const xmlBody = xmlString.replace(declaration, '').trim();
+
+  // Remove whitespace between tags to make splitting consistent.
+  const compactedXml = xmlBody.replace(/>\s*</g, '><');
+  // Split the XML into parts based on tags / rows.
+  const xmlParts = compactedXml.split(/>\s*</);
+
+  // Handle the first and last parts which may sometimes have extra angle brackets.
+  if (xmlParts.length > 0) {
+    if (xmlParts[0].startsWith('<')) {
+      xmlParts[0] = xmlParts[0].substring(1);
+    }
+    const lastIndex = xmlParts.length - 1;
+    if (xmlParts[lastIndex].endsWith('>')) {
+      xmlParts[lastIndex] = xmlParts[lastIndex].slice(0, -1);
+    }
+  }
+
+  // Build the indented XML structure.
+  for (const node of xmlParts) {
+    // Decrease indent for closing tags (starts with / and any word).
+    if (node.match(/^\/\w/)) {
+      indentLevel--;
+    }
+
+    // Construct the row.
+    const indent = '  '.repeat(indentLevel);
+    formattedXml += `${indent}<${node}>\n`;
+
+    // Increase indent for opening tags (matches opening tags that are not self closing).
+    if (node.match(/^<?\w[^>]*[^\/]$/)) {
+      indentLevel++;
+    }
+  }
+
+  // Add the declaration row back.
+  formattedXml = declaration.trim() + '\n' + formattedXml.trim();
+
+  // Colorize the formatted XML string.
+  const colorizedTags = formattedXml.replace(
+    /<(\/?[^>]+)>/g, // this matches all tags.
+    (_, tagContent) => {
+      const parts = tagContent.split(' ');
+      const tagName = parts.shift() || '';
+      const attributes = parts.join(' ');
+
+      // Colorize attributes (eg key="value")
+      const colorizedAttrs = attributes.replace(
+        /(\w+)=(".*?")/g, // matches key="value" pairs
+        `${colors.yellow('$1')}=${colors.green('$2')}`,
+      );
+
+      return `<${colors.blue(tagName)}${colorizedAttrs}>`;
+    },
+  );
+
+  // Colorize the text content within tags.
+  const colorizedContent = colorizedTags.replace(
+    />([^<]+)</g, // this matches content between tags
+    `>${colors.white('$1')}<`,
+  );
+
+  return colorizedContent;
+}
+
+/**
  * Main function for handling response formatting.
  * @param request
  * @param responseData
@@ -80,12 +158,26 @@ export async function formatResponse(
   }
 
   if (showBody) {
-    // Print the JSON body.
-    const body = await response.json();
-    const jsonString = JSON.stringify(body, null, 2);
-    const prettyJson = colorizeJSON(jsonString);
     console.log(colors.bold(colors.cyan('Body')));
-    console.log(prettyJson);
+    const contentType = response.headers.get('content-type');
+
+    if (contentType?.includes('application/json')) {
+      const body = await response.json();
+      const jsonString = JSON.stringify(body, null, 2);
+      const prettyJson = colorizeJSON(jsonString);
+      console.log(prettyJson);
+    } else if (
+      contentType?.includes('application/xml') ||
+      contentType?.includes('text/xml')
+    ) {
+      const xmlString = await response.text();
+      const prettyXml = formatAndColorizeXml(xmlString);
+      console.log(prettyXml);
+    } else {
+      // Fallback for other formats for now.
+      console.log(await response.text());
+    }
+
     console.log('');
   }
 }
