@@ -1,6 +1,7 @@
 import { dirname, resolve } from 'jsr:@std/path';
 import { load } from 'jsr:@std/dotenv';
 import { Config } from '../utils/types.ts';
+import { printMessage } from '../output/response_formatter.ts';
 
 let secrets: Record<string, string> = {};
 
@@ -22,7 +23,10 @@ export async function loadSecrets(
         export: true,
       });
     } catch (error) {
-      console.error(`Error loading secrets from ${envFilePath}`, error);
+      printMessage(
+        'error',
+        `Error loading secrets from ${envFilePath}. ` + error,
+      );
     }
   }
 }

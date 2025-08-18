@@ -12,7 +12,7 @@ export async function handleResponse(
   const { response } = responseData;
 
   if (!response.ok) {
-    const options = { showHeaders: false, showBody: false, verbose };
+    const options = { showHeaders: false, showBody: true, verbose };
     return formatResponse(request, responseData, options);
   }
 

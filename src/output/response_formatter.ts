@@ -1,6 +1,46 @@
 import * as colors from '@std/fmt/colors';
 import { ResponseData, FormatOptions } from '../utils/types.ts';
 
+// Object for storing formatter function flows based on content-type keys.
+const bodyFormatter: {
+  [key: string]: (response: Response) => Promise<string>;
+} = {
+  'application/json': async (response) => {
+    const body = await response.json();
+    const jsonString = JSON.stringify(body, null, 2);
+    return colorizeJSON(jsonString);
+  },
+  'application/xml': async (response) => {
+    const xmlString = await response.text();
+    return formatAndColorizeXml(xmlString);
+  },
+  'text/xml': async (response) => {
+    const xmlString = await response.text();
+    return formatAndColorizeXml(xmlString);
+  },
+  default: (response) => response.text(),
+};
+
+/**
+ * Prints the response body. Picks the correct formatter based
+ * on the response content type and logs it.
+ * @param response
+ */
+async function printBody(response: Response) {
+  console.log(colors.bold(colors.cyan('Body')));
+  const contentType = response.headers.get('content-type');
+
+  const formatterKey = Object.keys(bodyFormatter).find((key) =>
+    contentType?.includes(key),
+  );
+
+  const formatter = bodyFormatter[formatterKey || 'default'];
+  const formatterBody = await formatter(response);
+
+  console.log(formatterBody);
+  console.log('');
+}
+
 function getStatusColor(status: number) {
   if (status >= 200 && status < 300) return colors.green;
   if (status >= 300 && status < 400) return colors.yellow;
@@ -23,6 +63,11 @@ function isImportantHeader(headerKey: string) {
   return important.has(headerKey);
 }
 
+/**
+ * Colorizes JSON keys and values.
+ * @param jsonString
+ * @returns colorized JSON string
+ */
 function colorizeJSON(jsonString: string): string {
   return jsonString
     .replace(/"([^"]+)":/g, colors.blue('"$1"') + ':') // Keys in blue
@@ -31,6 +76,11 @@ function colorizeJSON(jsonString: string): string {
     .replace(/: (true|false|null)/g, ': ' + colors.magenta('$1')); // Booleans/null in magenta
 }
 
+/**
+ * Prints useful info combined from request & response data.
+ * @param request
+ * @param responseData
+ */
 function printStatusLines(request: Request, responseData: ResponseData) {
   const { response, duration } = responseData;
 
@@ -158,30 +208,16 @@ export async function formatResponse(
   }
 
   if (showBody) {
-    console.log(colors.bold(colors.cyan('Body')));
-    const contentType = response.headers.get('content-type');
-
-    if (contentType?.includes('application/json')) {
-      const body = await response.json();
-      const jsonString = JSON.stringify(body, null, 2);
-      const prettyJson = colorizeJSON(jsonString);
-      console.log(prettyJson);
-    } else if (
-      contentType?.includes('application/xml') ||
-      contentType?.includes('text/xml')
-    ) {
-      const xmlString = await response.text();
-      const prettyXml = formatAndColorizeXml(xmlString);
-      console.log(prettyXml);
-    } else {
-      // Fallback for other formats for now.
-      console.log(await response.text());
-    }
-
-    console.log('');
+    await printBody(response);
   }
 }
 
+/**
+ * Helper function for printing simple messages
+ * @param type error | success
+ * @param message
+ * @returns Parses message based on passed in type.
+ */
 export function printMessage(type: 'error' | 'success', message: string) {
   return type === 'error'
     ? console.log(`${colors.red('✖')}` + ' ' + message)
