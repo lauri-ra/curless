@@ -50,6 +50,10 @@ export async function loadConfig(configPath?: string): Promise<Config | null> {
     if (configPath) {
       // First priority is to load the config from user provided path
       yamlString = await Deno.readTextFile(configPath);
+
+      if (yamlString) {
+        foundConfigPath = configPath;
+      }
     } else {
       // Attempt to search for the config updwards from current directory.
       const result = await findAndReadFile(Deno.cwd(), 'curless.yaml');
@@ -65,7 +69,7 @@ export async function loadConfig(configPath?: string): Promise<Config | null> {
     if (!yamlString || !foundConfigPath) {
       printMessage(
         'error',
-        'Config file not found. Please provide a path using',
+        'Config file not found. Please provide a path using --config flag',
       );
       return null;
     }

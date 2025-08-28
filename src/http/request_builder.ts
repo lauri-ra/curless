@@ -41,10 +41,6 @@ function getRequestDefinition(config: Config, requestName: string) {
  * Retrieves the environment details from the configuration.
  */
 function getEnvironmentDetails(config: Config, env: string) {
-  if (!config.environments || Object.keys(config.environments).length === 0) {
-    throw new Error('No envrionments specified in curless.yaml');
-  }
-
   // The env flag is provided, try to return matching env from the config.
   if (env) {
     const envDetails = config.environments?.[env];
@@ -54,6 +50,9 @@ function getEnvironmentDetails(config: Config, env: string) {
     return envDetails;
   }
 
+  if (!config.environments || Object.keys(config.environments).length === 0) {
+    throw new Error('No envrionments specified in curless.yaml');
+  }
   // No flag provided, so we try to find a default environment.
   const defaultEntry = Object.entries(config.environments).find(
     ([_name, details]) => details.default === true,

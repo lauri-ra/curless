@@ -4,6 +4,7 @@ import { handleManualMode } from './commands/manual_mode.ts';
 import { handleConfigMode } from './commands/config_mode.ts';
 import { initCurless } from './commands/init_command.ts';
 import { printMessage } from './output/response_formatter.ts';
+import { migratePostman } from './commands/migrate_commands.ts';
 
 export async function run() {
   const commands = parseCliArgs(Deno.args);
@@ -15,6 +16,11 @@ export async function run() {
 
   if (commands.version) {
     console.log('Curless version 0.1');
+    Deno.exit();
+  }
+
+  if (commands.migrate) {
+    await migratePostman(commands.migrate);
     Deno.exit();
   }
 

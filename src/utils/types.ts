@@ -10,6 +10,7 @@ export interface ParsedCommands {
   data?: string;
   env?: string;
   config?: string;
+  migrate?: string;
   [key: string]: unknown;
 }
 
