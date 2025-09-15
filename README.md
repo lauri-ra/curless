@@ -23,7 +23,7 @@ Secrets Management
 * Safe interpolation into config files
 
 Interactive Mode
-* Opens request data in your default editor before submission ($EDITOR).
+* Opens request data in your default editor before submission ($EDITOR). (WIP)
 
 Verbose/Debug Mode
 * Clearly see full request details and headers for debugging.
