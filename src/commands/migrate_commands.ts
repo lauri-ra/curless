@@ -1,17 +1,16 @@
 import { stringify } from 'jsr:@std/yaml/stringify';
-import { Config } from '../utils/types.ts';
+import { Config, ParsedCommands } from '../utils/types.ts';
 import { printMessage } from '../output/response_formatter.ts';
 
 // WORK IN PROGRESS
 // TODO:
 // - parse request body
 // - handle edge cases
-export async function migratePostman(filePath: string) {
-  const file = await Deno.readTextFile(filePath);
+// - provide baseURL
+export async function migratePostman(commands: ParsedCommands) {
+  const file = await Deno.readTextFile(commands.migrate as string);
   const postmanData = JSON.parse(file);
   const postmanFile = 'curless.postman.yaml';
-
-  // console.dir(postmanData, { colors: true, depth: null });
 
   let baseUrl = '';
   if (postmanData.item?.length > 0) {
@@ -19,6 +18,9 @@ export async function migratePostman(filePath: string) {
     if (firstUrl && firstUrl.protocol && firstUrl.host) {
       baseUrl = `${firstUrl.protocol}://${firstUrl.host.join('.')}`;
     }
+  }
+  if (commands.baseUrl) {
+    baseUrl = commands.baseUrl;
   }
 
   const config: Config = {
@@ -40,18 +42,17 @@ export async function migratePostman(filePath: string) {
     );
     const path = item.request.url.path.join('/');
 
-    const queryParams = new URLSearchParams();
+    const queryParts: string[] = [];
     if (item.request.url.query) {
-      for (const query of item.request.url.query) {
-        queryParams.append(query.key, query.value);
+      for (const q of item.request.url.query) {
+        if (!q.disabled) {
+          queryParts.push(`${q.key}=${q.value}`);
+        }
       }
     }
 
-    const fullPath = queryParams.toString()
-      ? `/${path}?${queryParams.toString()}`
-      : `/${path}`;
-
-    console.log(fullPath);
+    const fullPath =
+      queryParts.length > 0 ? `/${path}?${queryParts.join('&')}` : `/${path}`;
 
     if (!config.requests) {
       config.requests = {};
@@ -62,8 +63,6 @@ export async function migratePostman(filePath: string) {
       headers,
       path: fullPath,
     };
-
-    console.log(config.requests[requestName]);
   }
   const yaml = stringify(config);
   await Deno.writeTextFile(postmanFile, yaml);

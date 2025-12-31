@@ -11,6 +11,7 @@ export interface ParsedCommands {
   env?: string;
   config?: string;
   migrate?: string;
+  baseUrl?: string;
   [key: string]: unknown;
 }
 

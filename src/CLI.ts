@@ -20,7 +20,7 @@ export async function run() {
   }
 
   if (commands.migrate) {
-    await migratePostman(commands.migrate);
+    await migratePostman(commands);
     Deno.exit();
   }
 
