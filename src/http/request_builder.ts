@@ -5,6 +5,7 @@ import {
   ParsedCommands,
   RequestDefinition,
 } from '../utils/types.ts';
+import { CurlessError } from '../utils/errors.ts';
 
 /**
  * Parses the request name and path parameters from positional arguments.
@@ -14,7 +15,11 @@ function parseRequestNameAndParams(positionalArgs: string[]) {
   const requestNameInput = positionalArgs[0];
 
   if (!requestNameInput) {
-    throw new Error('Request name not provided in command.');
+    throw new CurlessError(
+      'REQUEST_NAME_MISSING',
+      'user',
+      'Request name not provided. Choose one from your config or run `curless list`.',
+    );
   }
 
   if (requestNameInput.includes(':')) {
@@ -32,7 +37,12 @@ function getRequestDefinition(config: Config, requestName: string) {
   const requestDefinition = config.requests?.[requestName];
 
   if (!requestDefinition) {
-    throw new Error(`Request '${requestName}' not found in configuration.`);
+    throw new CurlessError(
+      'REQUEST_NOT_FOUND',
+      'user',
+      `Request '${requestName}' was not found in configuration.`,
+      { details: { requestName } },
+    );
   }
   return requestDefinition;
 }
@@ -45,13 +55,22 @@ function getEnvironmentDetails(config: Config, env: string) {
   if (env) {
     const envDetails = config.environments?.[env];
     if (!envDetails) {
-      throw new Error(`Environment '${env}' not found in configuration.`);
+      throw new CurlessError(
+        'ENV_NOT_FOUND',
+        'user',
+        `Environment '${env}' was not found in configuration.`,
+        { details: { env } },
+      );
     }
     return envDetails;
   }
 
   if (!config.environments || Object.keys(config.environments).length === 0) {
-    throw new Error('No envrionments specified in curless.yaml');
+    throw new CurlessError(
+      'ENVIRONMENTS_MISSING',
+      'config',
+      'No environments are defined in curless.yaml.',
+    );
   }
   // No flag provided, so we try to find a default environment.
   const defaultEntry = Object.entries(config.environments).find(
@@ -60,7 +79,11 @@ function getEnvironmentDetails(config: Config, env: string) {
   if (defaultEntry) return defaultEntry[1];
 
   // If we got here, it means there is no valid environment in the config.
-  throw new Error('Environment not specified. Use the --env flag.');
+  throw new CurlessError(
+    'ENV_NOT_SPECIFIED',
+    'user',
+    'Environment not specified. Use --env or mark one environment as default.',
+  );
 }
 
 /**
@@ -69,8 +92,11 @@ function getEnvironmentDetails(config: Config, env: string) {
 function getDataTemplate(config: Config, templateName: string): string {
   const dataTemplate = config.data_templates?.[templateName];
   if (!dataTemplate) {
-    throw new Error(
-      `Data template '${templateName}' not found in configuration.`,
+    throw new CurlessError(
+      'DATA_TEMPLATE_NOT_FOUND',
+      'user',
+      `Data template '${templateName}' was not found in configuration.`,
+      { details: { templateName } },
     );
   }
 
@@ -133,7 +159,9 @@ function buildPath(
   // If the provided params length does not match
   // with placeholders from config, something is wrong and we log an error.
   if (placeholders.length !== pathParams.length) {
-    throw new Error(
+    throw new CurlessError(
+      'PATH_PARAM_MISMATCH',
+      'user',
       `Path '${configuredPath}' requires ${
         placeholders.length
       } parameter(s), but ${
@@ -141,6 +169,14 @@ function buildPath(
       } were given. (Request: ${requestName}, Params: [${pathParams.join(
         ', ',
       )}])`,
+      {
+        details: {
+          configuredPath,
+          requestName,
+          expectedParamCount: placeholders.length,
+          actualParamCount: pathParams.length,
+        },
+      },
     );
   }
 
@@ -207,7 +243,12 @@ function constructUrl(
   requestName: string,
 ): string {
   if (!envDetails.baseUrl) {
-    throw new Error(`Base URL not defined for environment '${commands.env}'.`);
+    throw new CurlessError(
+      'BASE_URL_MISSING',
+      'config',
+      `Base URL is not defined for environment '${commands.env ?? 'unknown'}'.`,
+      { details: { env: commands.env } },
+    );
   }
 
   const baseUrl = envDetails.baseUrl.endsWith('/')
@@ -250,7 +291,12 @@ function replaceHeaderSecrets(
       if (secretValue) {
         processedValue = value.replace(match[0], secretValue);
       } else {
-        throw new Error(`Secret ${match[0]} not found`);
+        throw new CurlessError(
+          'SECRET_NOT_FOUND',
+          'config',
+          `Secret ${match[0]} was not found in the loaded secrets file.`,
+          { details: { secretName } },
+        );
       }
     }
     processedHeaders[key] = processedValue;

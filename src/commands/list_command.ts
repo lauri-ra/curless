@@ -5,10 +5,6 @@ import { printMessage } from '../output/response_formatter.ts';
 export async function listRequests(configPath?: string): Promise<void> {
   const config = await loadConfig(configPath);
 
-  if (!config) {
-    return;
-  }
-
   if (!config.requests || Object.keys(config.requests).length === 0) {
     printMessage('error', 'No requests defined in configuration.');
     return;

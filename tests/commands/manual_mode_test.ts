@@ -1,7 +1,8 @@
-import { assertEquals } from '@std/assert';
+import { assertEquals, assertRejects } from '@std/assert';
 import { stub, spy } from '@std/testing/mock';
 import { handleManualMode } from '../../src/commands/manual_mode.ts';
 import { createMockCommands } from '../helpers.ts';
+import { CurlessError } from '../../src/utils/errors.ts';
 
 Deno.test(
   'handleManualMode - makes GET request with correct method and URL',
@@ -50,4 +51,42 @@ Deno.test('handleManualMode - sends headers from -H flags', async () => {
   assertEquals(calledRequest.method, 'POST');
   assertEquals(calledRequest.headers.get('Content-Type'), 'application/json');
   assertEquals(calledRequest.headers.get('Authorization'), 'Bearer token');
+});
+
+Deno.test('handleManualMode - rejects missing URL', async () => {
+  const commands = createMockCommands({
+    _: ['GET'],
+  });
+
+  await assertRejects(
+    () => handleManualMode(commands),
+    CurlessError,
+    'Manual mode requires a URL',
+  );
+});
+
+Deno.test('handleManualMode - rejects invalid URL', async () => {
+  const commands = createMockCommands({
+    _: ['GET', 'not-a-url'],
+  });
+
+  await assertRejects(
+    () => handleManualMode(commands),
+    CurlessError,
+    "Invalid URL 'not-a-url'",
+  );
+});
+
+Deno.test('handleManualMode - rejects malformed header', async () => {
+  const commands = createMockCommands({
+    _: ['GET', 'https://api.example.com/test'],
+    header: ['Authorization'],
+    H: ['Authorization'],
+  });
+
+  await assertRejects(
+    () => handleManualMode(commands),
+    CurlessError,
+    "Invalid header 'Authorization'",
+  );
 });

@@ -1,23 +1,25 @@
-import { assertEquals } from '@std/assert';
+import { assertEquals, assertRejects } from '@std/assert';
 import { stub, spy } from '@std/testing/mock';
 import { handleConfigMode } from '../../src/commands/config_mode.ts';
 import { createMockCommands } from '../helpers.ts';
+import { CurlessError } from '../../src/utils/errors.ts';
 
-Deno.test('handleConfigMode - returns null when config not found', async () => {
+Deno.test('handleConfigMode - throws when config not found', async () => {
   // loadConfig traverses dirs looking for curless.yaml.
   // In a temp dir with no config, it returns null.
   // We stub Deno.cwd to return a temp dir with no curless.yaml.
   const tempDir = await Deno.makeTempDir();
   const cwdStub = stub(Deno, 'cwd', () => tempDir);
-  const consoleSpy = spy(console, 'log');
 
   try {
     const commands = createMockCommands({ _: ['getUsers'] });
-    const result = await handleConfigMode(commands);
-    assertEquals(result, null);
+    await assertRejects(
+      () => handleConfigMode(commands),
+      CurlessError,
+      'Config file was not found',
+    );
   } finally {
     cwdStub.restore();
-    consoleSpy.restore();
     await Deno.remove(tempDir, { recursive: true });
   }
 });

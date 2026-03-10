@@ -1,6 +1,7 @@
 import { assertEquals, assertThrows } from '@std/assert';
 import { resolveRequestDetails } from '../../src/http/request_builder.ts';
 import { createMockConfig, createMockCommands } from '../helpers.ts';
+import { CurlessError } from '../../src/utils/errors.ts';
 
 // --- Basic request resolution ---
 
@@ -57,7 +58,7 @@ Deno.test('resolveRequestDetails - throws when request name not provided', () =>
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
+    CurlessError,
     'Request name not provided',
   );
 });
@@ -68,8 +69,8 @@ Deno.test('resolveRequestDetails - throws for unknown request name', () => {
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
-    "not found in configuration",
+    CurlessError,
+    'was not found in configuration',
   );
 });
 
@@ -83,7 +84,7 @@ Deno.test('resolveRequestDetails - throws when too few path params', () => {
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
+    CurlessError,
     'requires 1 parameter(s), but 0 were given',
   );
 });
@@ -98,7 +99,7 @@ Deno.test('resolveRequestDetails - throws when too many path params', () => {
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
+    CurlessError,
     'requires 1 parameter(s), but 2 were given',
   );
 });
@@ -137,8 +138,8 @@ Deno.test('resolveRequestDetails - throws when --env points to non-existent env'
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
-    "Environment 'staging' not found",
+    CurlessError,
+    "Environment 'staging' was not found",
   );
 });
 
@@ -148,8 +149,8 @@ Deno.test('resolveRequestDetails - throws when no environments defined', () => {
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
-    'No envrionments specified',
+    CurlessError,
+    'No environments are defined',
   );
 });
 
@@ -164,7 +165,7 @@ Deno.test('resolveRequestDetails - throws when no default env and no --env flag'
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
+    CurlessError,
     'Environment not specified',
   );
 });
@@ -238,8 +239,8 @@ Deno.test('resolveRequestDetails - throws for non-existent data template', () =>
 
   assertThrows(
     () => resolveRequestDetails(config, commands),
-    Error,
-    "Data template 'nonExistent' not found",
+    CurlessError,
+    "Data template 'nonExistent' was not found",
   );
 });
 

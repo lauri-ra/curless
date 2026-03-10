@@ -1,6 +1,7 @@
 import { assertEquals, assertRejects } from '@std/assert';
 import { stub } from '@std/testing/mock';
 import { executeRequest } from '../../src/http/client.ts';
+import { CurlessError } from '../../src/utils/errors.ts';
 
 Deno.test('executeRequest - returns response and duration', async () => {
   const mockResponse = new Response(JSON.stringify({ ok: true }), {
@@ -25,7 +26,11 @@ Deno.test('executeRequest - propagates fetch errors', async () => {
   );
 
   const request = new Request('https://example.com/api');
-  await assertRejects(() => executeRequest(request), Error, 'Network error');
+  await assertRejects(
+    () => executeRequest(request),
+    CurlessError,
+    'Network error',
+  );
 });
 
 Deno.test('executeRequest - measures duration as positive number', async () => {

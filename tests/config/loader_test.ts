@@ -1,5 +1,6 @@
-import { assertEquals, assertNotEquals } from '@std/assert';
+import { assertEquals, assertNotEquals, assertRejects } from '@std/assert';
 import { loadConfig } from '../../src/config/loader.ts';
+import { CurlessError } from '../../src/utils/errors.ts';
 
 // Note: Test YAML configs omit the `secrets` section so loadSecrets
 // is a no-op (it checks config.secrets?.envFile and returns early).
@@ -34,10 +35,13 @@ requests:
 });
 
 Deno.test(
-  'loadConfig - returns null when config file does not exist',
+  'loadConfig - throws when explicit config file does not exist',
   async () => {
-    const config = await loadConfig('/definitely/nonexistent/curless.yaml');
-    assertEquals(config, null);
+    await assertRejects(
+      () => loadConfig('/definitely/nonexistent/curless.yaml'),
+      CurlessError,
+      'was not found',
+    );
   },
 );
 
@@ -82,3 +86,36 @@ requests:
     }
   },
 );
+
+Deno.test('loadConfig - throws when discovered config is missing', async () => {
+  const tempDir = await Deno.makeTempDir();
+  const originalCwd = Deno.cwd();
+
+  try {
+    Deno.chdir(tempDir);
+    await assertRejects(
+      () => loadConfig(),
+      CurlessError,
+      'Config file was not found',
+    );
+  } finally {
+    Deno.chdir(originalCwd);
+    await Deno.remove(tempDir, { recursive: true });
+  }
+});
+
+Deno.test('loadConfig - throws on invalid YAML', async () => {
+  const tempDir = await Deno.makeTempDir();
+  const configPath = `${tempDir}/curless.yaml`;
+  await Deno.writeTextFile(configPath, 'requests: [broken');
+
+  try {
+    await assertRejects(
+      () => loadConfig(configPath),
+      CurlessError,
+      'Failed to parse YAML',
+    );
+  } finally {
+    await Deno.remove(tempDir, { recursive: true });
+  }
+});

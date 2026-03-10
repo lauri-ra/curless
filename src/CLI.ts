@@ -3,7 +3,6 @@ import { showHelp } from './commands/help_command.ts';
 import { handleManualMode } from './commands/manual_mode.ts';
 import { handleConfigMode } from './commands/config_mode.ts';
 import { initCurless } from './commands/init_command.ts';
-import { printMessage } from './output/response_formatter.ts';
 import { migratePostman } from './commands/migrate_commands.ts';
 import { listRequests } from './commands/list_command.ts';
 
@@ -54,14 +53,9 @@ export async function run() {
 
   const firstArg = String(positionalArgs[0]).toUpperCase();
 
-  try {
-    if (httpMethods.has(firstArg)) {
-      await handleManualMode(commands);
-    } else {
-      await handleConfigMode(commands);
-    }
-  } catch (error) {
-    printMessage('error', String(error));
-    Deno.exit(1);
+  if (httpMethods.has(firstArg)) {
+    await handleManualMode(commands);
+  } else {
+    await handleConfigMode(commands);
   }
 }

@@ -3,7 +3,7 @@ import { Config } from '../utils/types.ts';
 import { join, dirname, resolve } from 'jsr:@std/path';
 import { exists } from 'jsr:@std/fs';
 import { loadSecrets } from './secrets.ts';
-import { printMessage } from '../output/response_formatter.ts';
+import { CurlessError } from '../utils/errors.ts';
 
 /**
  * Traverses the directory from the given path upwards looking for a config file.
@@ -24,7 +24,18 @@ async function findAndReadFile(
 
     // Check if the config file exits in the current location.
     if (await exists(configPath, { isFile: true })) {
-      const content = await Deno.readTextFile(configPath);
+      let content: string;
+      try {
+        content = await Deno.readTextFile(configPath);
+      } catch (error) {
+        throw new CurlessError(
+          'CONFIG_UNREADABLE',
+          'config',
+          `Config file '${configPath}' could not be read.`,
+          { cause: error, details: { configPath } },
+        );
+      }
+
       return { content, path: configPath };
     }
 
@@ -42,44 +53,65 @@ async function findAndReadFile(
 }
 
 // Loads and parses config.yaml.
-export async function loadConfig(configPath?: string): Promise<Config | null> {
-  try {
-    let yamlString: string | null;
-    let foundConfigPath: string | undefined;
+export async function loadConfig(configPath?: string): Promise<Config> {
+  let yamlString: string | null;
+  let foundConfigPath: string | undefined;
 
-    if (configPath) {
-      // First priority is to load the config from user provided path
+  if (configPath) {
+    // First priority is to load the config from user provided path
+    try {
       yamlString = await Deno.readTextFile(configPath);
-
-      if (yamlString) {
-        foundConfigPath = configPath;
+      foundConfigPath = configPath;
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        throw new CurlessError(
+          'CONFIG_NOT_FOUND',
+          'config',
+          `Config file '${configPath}' was not found.`,
+          { cause: error, details: { configPath } },
+        );
       }
-    } else {
-      // Attempt to search for the config updwards from current directory.
-      const result = await findAndReadFile(Deno.cwd(), 'curless.yaml');
 
-      if (result) {
-        yamlString = result?.content;
-        foundConfigPath = result?.path;
-      } else {
-        yamlString = null;
-      }
-    }
-
-    if (!yamlString || !foundConfigPath) {
-      printMessage(
-        'error',
-        'Config file not found. Please provide a path using --config flag',
+      throw new CurlessError(
+        'CONFIG_UNREADABLE',
+        'config',
+        `Config file '${configPath}' could not be read.`,
+        { cause: error, details: { configPath } },
       );
-      return null;
     }
+  } else {
+    // Attempt to search for the config upwards from current directory.
+    const result = await findAndReadFile(Deno.cwd(), 'curless.yaml');
 
-    const parsedConfig = parse(yamlString) as Config;
-    await loadSecrets(parsedConfig, foundConfigPath);
-
-    return parsedConfig;
-  } catch (error) {
-    printMessage('error', String(error));
-    return null;
+    if (result) {
+      yamlString = result.content;
+      foundConfigPath = result.path;
+    } else {
+      yamlString = null;
+    }
   }
+
+  if (!yamlString || !foundConfigPath) {
+    throw new CurlessError(
+      'CONFIG_NOT_FOUND',
+      'config',
+      'Config file was not found.',
+    );
+  }
+
+  let parsedConfig: Config;
+  try {
+    parsedConfig = parse(yamlString) as Config;
+  } catch (error) {
+    throw new CurlessError(
+      'CONFIG_INVALID_YAML',
+      'config',
+      `Failed to parse YAML in '${foundConfigPath}'.`,
+      { cause: error, details: { configPath: foundConfigPath } },
+    );
+  }
+
+  await loadSecrets(parsedConfig, foundConfigPath);
+
+  return parsedConfig;
 }

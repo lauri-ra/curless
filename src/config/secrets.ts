@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'jsr:@std/path';
 import { load } from 'jsr:@std/dotenv';
 import { Config } from '../utils/types.ts';
-import { printMessage } from '../output/response_formatter.ts';
+import { CurlessError } from '../utils/errors.ts';
 
 let secrets: Record<string, string> = {};
 
@@ -14,6 +14,8 @@ export async function loadSecrets(
   config: Config,
   configPath: string,
 ): Promise<void> {
+  secrets = {};
+
   if (config.secrets?.envFile) {
     const envFilePath = resolve(dirname(configPath), config.secrets.envFile);
 
@@ -23,9 +25,20 @@ export async function loadSecrets(
         export: true,
       });
     } catch (error) {
-      printMessage(
-        'error',
-        `Error loading secrets from ${envFilePath}. ` + error,
+      if (error instanceof Deno.errors.NotFound) {
+        throw new CurlessError(
+          'SECRETS_FILE_MISSING',
+          'config',
+          `Secrets file '${envFilePath}' was not found.`,
+          { cause: error, details: { envFilePath } },
+        );
+      }
+
+      throw new CurlessError(
+        'SECRETS_FILE_UNREADABLE',
+        'config',
+        `Secrets file '${envFilePath}' could not be loaded.`,
+        { cause: error, details: { envFilePath } },
       );
     }
   }

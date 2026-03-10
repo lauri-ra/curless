@@ -11,13 +11,8 @@ import { handleResponse } from '../http/response_handler.ts';
  */
 export async function handleConfigMode(commands: ParsedCommands) {
   const config = await loadConfig(commands?.config);
+  const request = resolveRequestDetails(config, commands);
+  const response = await executeRequest(request);
 
-  if (config) {
-    const request = resolveRequestDetails(config, commands);
-    const response = await executeRequest(request);
-
-    return await handleResponse(request, response, commands.verbose);
-  }
-
-  return null;
+  return await handleResponse(request, response, commands.verbose);
 }
