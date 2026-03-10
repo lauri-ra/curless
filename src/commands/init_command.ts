@@ -35,6 +35,7 @@ const config: Config = {
         'Content-Type': 'application/json; charset=UTF-8',
         apikey: '${API_KEY}',
       },
+      data_template: 'new_post_payload',
     },
     updatePost: {
       method: 'PUT',
@@ -42,6 +43,7 @@ const config: Config = {
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
+      data_template: 'updated_post_payload',
     },
   },
   data_templates: {

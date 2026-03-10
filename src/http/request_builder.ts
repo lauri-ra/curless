@@ -64,13 +64,9 @@ function getEnvironmentDetails(config: Config, env: string) {
 }
 
 /**
- * Resolves the request body from a data template if one is provided.
+ * Looks up a named data template from config and returns it as a string.
  */
-function getRequestBody(config: Config, templateName: string) {
-  if (!templateName) {
-    return null;
-  }
-
+function getDataTemplate(config: Config, templateName: string): string {
   const dataTemplate = config.data_templates?.[templateName];
   if (!dataTemplate) {
     throw new Error(
@@ -83,6 +79,42 @@ function getRequestBody(config: Config, templateName: string) {
   }
 
   return dataTemplate as string;
+}
+
+/**
+ * Resolves the request body with the following priority:
+ * 1. CLI --data as raw JSON (starts with { or [)
+ * 2. CLI --data as template name lookup
+ * 3. Request definition's data_template field
+ * 4. Request definition's inline data field
+ */
+function resolveBody(
+  config: Config,
+  commands: ParsedCommands,
+  requestDefinition: RequestDefinition,
+): string | null {
+  const cliData = commands.data as string | undefined;
+
+  if (cliData) {
+    const trimmed = cliData.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      return trimmed;
+    }
+    return getDataTemplate(config, cliData);
+  }
+
+  if (requestDefinition.data_template) {
+    return getDataTemplate(config, requestDefinition.data_template);
+  }
+
+  if (requestDefinition.data !== undefined) {
+    if (typeof requestDefinition.data === 'object' && requestDefinition.data !== null) {
+      return JSON.stringify(requestDefinition.data);
+    }
+    return String(requestDefinition.data);
+  }
+
+  return null;
 }
 
 /**
@@ -241,7 +273,7 @@ export function resolveRequestDetails(
 
   const requestDefinition = getRequestDefinition(config, requestName);
   const envDetails = getEnvironmentDetails(config, commands.env as string);
-  const body = getRequestBody(config, commands.data as string);
+  const body = resolveBody(config, commands, requestDefinition);
   const headers = replaceHeaderSecrets(requestDefinition.headers);
 
   const fullUrl = constructUrl(

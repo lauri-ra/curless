@@ -11,6 +11,9 @@ EXAMPLES:
   curless createUser --auth apikey --data dummy_user --env dev
   curless getUser --auth token --env prod
 
+  # List all requests from config
+  curless list
+
   # Raw HTTP requests
   curless POST https://api.example.com/users \\
     -H "Authorization: Bearer xyz" \\

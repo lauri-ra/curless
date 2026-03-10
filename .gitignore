@@ -1,4 +1,6 @@
 .env
 *.yaml
 *.md
+!README.md
+!USAGE.md
 curless

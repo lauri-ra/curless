@@ -242,3 +242,83 @@ Deno.test('resolveRequestDetails - throws for non-existent data template', () =>
     "Data template 'nonExistent' not found",
   );
 });
+
+Deno.test('resolveRequestDetails - body from request data_template field (no CLI flag)', async () => {
+  const config = createMockConfig({
+    requests: {
+      createUser: { method: 'POST', path: '/users', data_template: 'newUser' },
+    },
+    data_templates: {
+      newUser: { name: 'Alice', age: 30 },
+    },
+  });
+  const commands = createMockCommands({ _: ['createUser'] });
+  const request = resolveRequestDetails(config, commands);
+
+  const body = await request.text();
+  assertEquals(JSON.parse(body), { name: 'Alice', age: 30 });
+});
+
+Deno.test('resolveRequestDetails - CLI --data overrides request data_template', async () => {
+  const config = createMockConfig({
+    requests: {
+      createUser: { method: 'POST', path: '/users', data_template: 'newUser' },
+    },
+    data_templates: {
+      newUser: { name: 'Alice', age: 30 },
+      otherUser: { name: 'Bob', age: 25 },
+    },
+  });
+  const commands = createMockCommands({ _: ['createUser'], data: 'otherUser' });
+  const request = resolveRequestDetails(config, commands);
+
+  const body = await request.text();
+  assertEquals(JSON.parse(body), { name: 'Bob', age: 25 });
+});
+
+Deno.test('resolveRequestDetails - CLI --data with raw JSON string', async () => {
+  const config = createMockConfig({
+    requests: {
+      createUser: { method: 'POST', path: '/users' },
+    },
+  });
+  const commands = createMockCommands({ _: ['createUser'], data: '{"name":"Charlie"}' });
+  const request = resolveRequestDetails(config, commands);
+
+  const body = await request.text();
+  assertEquals(JSON.parse(body), { name: 'Charlie' });
+});
+
+Deno.test('resolveRequestDetails - inline data on request definition', async () => {
+  const config = createMockConfig({
+    requests: {
+      createUser: { method: 'POST', path: '/users', data: { name: 'Dave', age: 40 } },
+    },
+  });
+  const commands = createMockCommands({ _: ['createUser'] });
+  const request = resolveRequestDetails(config, commands);
+
+  const body = await request.text();
+  assertEquals(JSON.parse(body), { name: 'Dave', age: 40 });
+});
+
+Deno.test('resolveRequestDetails - data_template takes priority over inline data', async () => {
+  const config = createMockConfig({
+    requests: {
+      createUser: {
+        method: 'POST',
+        path: '/users',
+        data_template: 'tmpl',
+        data: { name: 'Inline' },
+      },
+    },
+    data_templates: {
+      tmpl: { name: 'Template' },
+    },
+  });
+  const commands = createMockCommands({ _: ['createUser'] });
+  const request = resolveRequestDetails(config, commands);
+
+  const body = await request.text();
+  assertEquals(JSON.parse(body), { name: 'Template' });
+});

@@ -5,6 +5,7 @@ import { handleConfigMode } from './commands/config_mode.ts';
 import { initCurless } from './commands/init_command.ts';
 import { printMessage } from './output/response_formatter.ts';
 import { migratePostman } from './commands/migrate_commands.ts';
+import { listRequests } from './commands/list_command.ts';
 
 export async function run() {
   const commands = parseCliArgs(Deno.args);
@@ -43,6 +44,11 @@ export async function run() {
 
   if (String(positionalArgs[0]).toLowerCase() === 'init') {
     await initCurless(Boolean(commands.force) || false);
+    Deno.exit();
+  }
+
+  if (String(positionalArgs[0]).toLowerCase() === 'list') {
+    await listRequests(commands.config);
     Deno.exit();
   }
 

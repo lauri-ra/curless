@@ -32,32 +32,7 @@ In the end of the day, I want this to work for me and fun creating it.
 
 #### Usage
 
-Manual mode
-```
-curless POST https://jsonplaceholder.typicode.com/posts \
-    -H "Authorization: Bearer xyz" \
-    -d '{"name":"Alice"}'
-```
-
-Config mode with query params:
-```
-  curless getComments --postId=1 --env dev
-```
-
-Config mode wit id params
-```
-  curless getPostById:5 --env dev
-```
-
-Create a config file placeholder / example like this
-```
-  curless init
-```
-
-Create a config file from a Postman collection
-```
-  curless migrate <path_to_postman_collection.json>
-```
+See [USAGE.md](/Users/lauri.rautiala/Personal/curless/USAGE.md) for command examples, config-mode details, and `--data` behavior.
 
 Example response you get (default)
 ```
@@ -75,6 +50,7 @@ Example response you get (default)
   {
     "id": 101
   }
+```
 
 Suggested Alias
 For a faster workflow, we recommend adding an alias for curless. Here are a few popular options:
