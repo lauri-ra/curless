@@ -4,7 +4,6 @@ export interface ParsedCommands {
   header: string[];
   version: boolean;
   help: boolean;
-  interactive: boolean;
   verbose: boolean;
   auth?: string;
   data?: string;
@@ -12,7 +11,6 @@ export interface ParsedCommands {
   config?: string;
   migrate?: string;
   baseUrl?: string;
-  output?: string;
   [key: string]: unknown;
 }
 
@@ -53,6 +51,6 @@ export interface FormatOptions {
   verbose?: boolean;
 }
 
-export type EnvDetails = NonNullable<Config['environments']>[string];
+export type EnvDetails = NonNullable<Config["environments"]>[string];
 
-export type RequestDefinition = NonNullable<Config['requests']>[string];
+export type RequestDefinition = NonNullable<Config["requests"]>[string];

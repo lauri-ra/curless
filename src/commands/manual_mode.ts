@@ -1,15 +1,16 @@
 // Handles making the HTTP requests
-import { ParsedCommands } from '../utils/types.ts';
-import { executeRequest } from '../http/client.ts';
-import { handleResponse } from '../http/response_handler.ts';
-import { CurlessError } from '../utils/errors.ts';
+import { ParsedCommands } from "../utils/types.ts";
+import { executeRequest } from "../http/client.ts";
+import { handleResponse } from "../http/response_handler.ts";
+import { CurlessError } from "../utils/errors.ts";
+import { buildAuthHeader } from "../utils/auth.ts";
 
 function parseHeader(header: string): [string, string] {
-  const separatorIndex = header.indexOf(':');
+  const separatorIndex = header.indexOf(":");
   if (separatorIndex <= 0 || separatorIndex === header.length - 1) {
     throw new CurlessError(
-      'INVALID_HEADER',
-      'user',
+      "INVALID_HEADER",
+      "user",
       `Invalid header '${header}'. Use the format Key:Value.`,
       { details: { header } },
     );
@@ -20,8 +21,8 @@ function parseHeader(header: string): [string, string] {
 
   if (!key || !value) {
     throw new CurlessError(
-      'INVALID_HEADER',
-      'user',
+      "INVALID_HEADER",
+      "user",
       `Invalid header '${header}'. Use the format Key:Value.`,
       { details: { header } },
     );
@@ -44,9 +45,9 @@ export async function handleManualMode(commands: ParsedCommands) {
 
   if (!positionalArgs[1]) {
     throw new CurlessError(
-      'MANUAL_URL_MISSING',
-      'user',
-      'Manual mode requires a URL. Usage: curless GET https://example.com',
+      "MANUAL_URL_MISSING",
+      "user",
+      "Manual mode requires a URL. Usage: curless GET https://example.com",
     );
   }
 
@@ -54,8 +55,8 @@ export async function handleManualMode(commands: ParsedCommands) {
     new URL(url);
   } catch {
     throw new CurlessError(
-      'MANUAL_URL_INVALID',
-      'user',
+      "MANUAL_URL_INVALID",
+      "user",
       `Invalid URL '${url}'.`,
       { details: { url } },
     );
@@ -66,6 +67,12 @@ export async function handleManualMode(commands: ParsedCommands) {
   for (const h of commands.header) {
     const [key, value] = parseHeader(h);
     requestHeaders.append(key, value);
+  }
+
+  // Apply --auth only if the user did not pass Authorization explicitly via -H.
+  if (commands.auth && !requestHeaders.has("Authorization")) {
+    const [key, value] = buildAuthHeader(commands.auth);
+    requestHeaders.set(key, value);
   }
 
   // Create the request and include data.

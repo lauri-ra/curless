@@ -2,5 +2,6 @@
 *.yaml
 *.md
 !README.md
+!ROADMAP.md
 !USAGE.md
 curless

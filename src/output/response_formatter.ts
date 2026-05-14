@@ -1,20 +1,20 @@
-import * as colors from '@std/fmt/colors';
-import { ResponseData, FormatOptions } from '../utils/types.ts';
+import * as colors from "@std/fmt/colors";
+import { FormatOptions, ResponseData } from "../utils/types.ts";
 
 // Object for storing formatter function flows based on content-type keys.
 const bodyFormatter: {
   [key: string]: (response: Response) => Promise<string>;
 } = {
-  'application/json': async (response) => {
+  "application/json": async (response) => {
     const body = await response.json();
     const jsonString = JSON.stringify(body, null, 2);
     return colorizeJSON(jsonString);
   },
-  'application/xml': async (response) => {
+  "application/xml": async (response) => {
     const xmlString = await response.text();
     return formatAndColorizeXml(xmlString);
   },
-  'text/xml': async (response) => {
+  "text/xml": async (response) => {
     const xmlString = await response.text();
     return formatAndColorizeXml(xmlString);
   },
@@ -27,18 +27,18 @@ const bodyFormatter: {
  * @param response
  */
 async function printBody(response: Response) {
-  console.log(colors.bold(colors.cyan('Body')));
-  const contentType = response.headers.get('content-type');
+  console.log(colors.bold(colors.cyan("Body")));
+  const contentType = response.headers.get("content-type");
 
   const formatterKey = Object.keys(bodyFormatter).find((key) =>
-    contentType?.includes(key),
+    contentType?.includes(key)
   );
 
-  const formatter = bodyFormatter[formatterKey || 'default'];
+  const formatter = bodyFormatter[formatterKey || "default"];
   const formatterBody = await formatter(response);
 
   console.log(formatterBody);
-  console.log('');
+  console.log("");
 }
 
 function getStatusColor(status: number) {
@@ -52,12 +52,12 @@ function getStatusColor(status: number) {
 
 function isImportantHeader(headerKey: string) {
   const important = new Set([
-    'content-type',
-    'content-length',
-    'authorization',
-    'location',
-    'date',
-    'cache-control',
+    "content-type",
+    "content-length",
+    "authorization",
+    "location",
+    "date",
+    "cache-control",
   ]);
 
   return important.has(headerKey);
@@ -70,10 +70,10 @@ function isImportantHeader(headerKey: string) {
  */
 function colorizeJSON(jsonString: string): string {
   return jsonString
-    .replace(/"([^"]+)":/g, colors.blue('"$1"') + ':') // Keys in blue
-    .replace(/: "([^"]*)"/g, ': ' + colors.green('"$1"')) // String values in green
-    .replace(/: (\d+\.?\d*)/g, ': ' + colors.yellow('$1')) // Numbers in yellow
-    .replace(/: (true|false|null)/g, ': ' + colors.magenta('$1')); // Booleans/null in magenta
+    .replace(/"([^"]+)":/g, colors.blue('"$1"') + ":") // Keys in blue
+    .replace(/: "([^"]*)"/g, ": " + colors.green('"$1"')) // String values in green
+    .replace(/: (\d+\.?\d*)/g, ": " + colors.yellow("$1")) // Numbers in yellow
+    .replace(/: (true|false|null)/g, ": " + colors.magenta("$1")); // Booleans/null in magenta
 }
 
 /**
@@ -85,19 +85,21 @@ function printStatusLines(request: Request, responseData: ResponseData) {
   const { response, duration } = responseData;
 
   const statusColor = getStatusColor(response.status);
-  const statusIcon = response.ok ? colors.green('✔') : colors.red('✖');
-  const statusLine = `> ${colors.cyan(colors.bold(request.method))} ${
-    request.url
-  }`;
-  const statusInfo = `${statusIcon} ${statusColor(
-    response.status.toString(),
-  )} ${response.statusText}`;
+  const statusIcon = response.ok ? colors.green("✔") : colors.red("✖");
+  const statusLine = `> ${
+    colors.cyan(colors.bold(request.method))
+  } ${request.url}`;
+  const statusInfo = `${statusIcon} ${
+    statusColor(
+      response.status.toString(),
+    )
+  } ${response.statusText}`;
   const durationLine = colors.dim(`${duration.toFixed(2)} (ms)`);
 
-  console.log('');
+  console.log("");
   console.log(statusLine);
-  console.log(statusInfo + '  ' + durationLine);
-  console.log('');
+  console.log(statusInfo + "  " + durationLine);
+  console.log("");
 }
 
 /**
@@ -107,26 +109,26 @@ function printStatusLines(request: Request, responseData: ResponseData) {
  * @returns formatted and very nicely colored xml string
  */
 function formatAndColorizeXml(xmlString: string): string {
-  let formattedXml = '';
+  let formattedXml = "";
   let indentLevel = 0;
 
   // Remove the XML declaration to simplify the parsing a little bit.
   const declarationMatch = xmlString.match(/<\?xml[^>]*\?>\s*/);
-  const declaration = declarationMatch ? declarationMatch[0] : '';
-  const xmlBody = xmlString.replace(declaration, '').trim();
+  const declaration = declarationMatch ? declarationMatch[0] : "";
+  const xmlBody = xmlString.replace(declaration, "").trim();
 
   // Remove whitespace between tags to make splitting consistent.
-  const compactedXml = xmlBody.replace(/>\s*</g, '><');
+  const compactedXml = xmlBody.replace(/>\s*</g, "><");
   // Split the XML into parts based on tags / rows.
   const xmlParts = compactedXml.split(/>\s*</);
 
   // Handle the first and last parts which may sometimes have extra angle brackets.
   if (xmlParts.length > 0) {
-    if (xmlParts[0].startsWith('<')) {
+    if (xmlParts[0].startsWith("<")) {
       xmlParts[0] = xmlParts[0].substring(1);
     }
     const lastIndex = xmlParts.length - 1;
-    if (xmlParts[lastIndex].endsWith('>')) {
+    if (xmlParts[lastIndex].endsWith(">")) {
       xmlParts[lastIndex] = xmlParts[lastIndex].slice(0, -1);
     }
   }
@@ -139,7 +141,7 @@ function formatAndColorizeXml(xmlString: string): string {
     }
 
     // Construct the row.
-    const indent = '  '.repeat(indentLevel);
+    const indent = "  ".repeat(indentLevel);
     formattedXml += `${indent}<${node}>\n`;
 
     // Increase indent for opening tags (matches opening tags that are not self closing).
@@ -149,20 +151,20 @@ function formatAndColorizeXml(xmlString: string): string {
   }
 
   // Add the declaration row back.
-  formattedXml = declaration.trim() + '\n' + formattedXml.trim();
+  formattedXml = declaration.trim() + "\n" + formattedXml.trim();
 
   // Colorize the formatted XML string.
   const colorizedTags = formattedXml.replace(
     /<(\/?[^>]+)>/g, // this matches all tags.
     (_, tagContent) => {
-      const parts = tagContent.split(' ');
-      const tagName = parts.shift() || '';
-      const attributes = parts.join(' ');
+      const parts = tagContent.split(" ");
+      const tagName = parts.shift() || "";
+      const attributes = parts.join(" ");
 
       // Colorize attributes (eg key="value")
       const colorizedAttrs = attributes.replace(
         /(\w+)=(".*?")/g, // matches key="value" pairs
-        `${colors.yellow('$1')}=${colors.green('$2')}`,
+        `${colors.yellow("$1")}=${colors.green("$2")}`,
       );
 
       return `<${colors.blue(tagName)}${colorizedAttrs}>`;
@@ -172,7 +174,7 @@ function formatAndColorizeXml(xmlString: string): string {
   // Colorize the text content within tags.
   const colorizedContent = colorizedTags.replace(
     />([^<]+)</g, // this matches content between tags
-    `>${colors.white('$1')}<`,
+    `>${colors.white("$1")}<`,
   );
 
   return colorizedContent;
@@ -198,13 +200,13 @@ export async function formatResponse(
 
   if (showHeaders) {
     // Print headers.
-    console.log(colors.cyan(colors.bold('Headers')));
+    console.log(colors.cyan(colors.bold("Headers")));
     for (const [key, value] of response.headers.entries()) {
       if (verbose || isImportantHeader(key)) {
         console.log(`   ${colors.dim(key)}: ${value}`);
       }
     }
-    console.log('');
+    console.log("");
   }
 
   if (showBody) {
@@ -218,8 +220,8 @@ export async function formatResponse(
  * @param message
  * @returns Parses message based on passed in type.
  */
-export function printMessage(type: 'error' | 'success', message: string) {
-  return type === 'error'
-    ? console.log(`${colors.red('✖')}` + ' ' + message)
-    : console.log(`${colors.green('✔')}` + ' ' + message);
+export function printMessage(type: "error" | "success", message: string) {
+  return type === "error"
+    ? console.log(`${colors.red("✖")}` + " " + message)
+    : console.log(`${colors.green("✔")}` + " " + message);
 }

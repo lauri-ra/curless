@@ -1,61 +1,61 @@
-import { stringify } from 'jsr:@std/yaml/stringify';
-import { printMessage } from '../output/response_formatter.ts';
-import { Config } from '../utils/types.ts';
+import { stringify } from "@std/yaml/stringify";
+import { printMessage } from "../output/response_formatter.ts";
+import { Config } from "../utils/types.ts";
 
 const config: Config = {
   environments: {
     dev: {
-      baseUrl: 'https://jsonplaceholder.typicode.com',
+      baseUrl: "https://jsonplaceholder.typicode.com",
     },
   },
   secrets: {
-    envFile: '.env',
+    envFile: ".env",
   },
   requests: {
     getAllPosts: {
-      method: 'GET',
-      path: '/posts',
+      method: "GET",
+      path: "/posts",
     },
     getPostById: {
-      method: 'GET',
-      path: '/posts/{postId}',
+      method: "GET",
+      path: "/posts/{postId}",
       headers: {
-        Authorization: 'Bearer ${API_KEY}',
-        'X-Custom-Header': '${CUSTOM_HEADER_VALUE}',
+        Authorization: "Bearer ${API_KEY}",
+        "X-Custom-Header": "${CUSTOM_HEADER_VALUE}",
       },
     },
     getPostByIdTwo: {
-      method: 'GET',
-      path: '/posts/1',
+      method: "GET",
+      path: "/posts/1",
     },
     createPost: {
-      method: 'POST',
-      path: '/posts',
+      method: "POST",
+      path: "/posts",
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        apikey: '${API_KEY}',
+        "Content-Type": "application/json; charset=UTF-8",
+        apikey: "${API_KEY}",
       },
-      data_template: 'new_post_payload',
+      data_template: "new_post_payload",
     },
     updatePost: {
-      method: 'PUT',
-      path: '/posts/{postId}',
+      method: "PUT",
+      path: "/posts/{postId}",
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
+        "Content-Type": "application/json; charset=UTF-8",
       },
-      data_template: 'updated_post_payload',
+      data_template: "updated_post_payload",
     },
   },
   data_templates: {
     new_post_payload: {
-      title: 'foo',
-      body: 'bar',
+      title: "foo",
+      body: "bar",
       userId: 1,
     },
     updated_post_payload: {
       id: 1,
-      title: 'foo updated',
-      body: 'bar updated',
+      title: "foo updated",
+      body: "bar updated",
       userId: 1,
     },
   },
@@ -67,13 +67,13 @@ const config: Config = {
  * @param overwrite
  */
 export async function initCurless(overwrite: boolean): Promise<void> {
-  const filePath = 'curless.yaml';
+  const filePath = "curless.yaml";
 
   if (overwrite === false) {
     try {
       await Deno.stat(filePath);
       printMessage(
-        'error',
+        "error",
         `Error: File "${filePath}" already exists. Run curless init -f to replace the existing config.`,
       );
       return;
@@ -87,5 +87,5 @@ export async function initCurless(overwrite: boolean): Promise<void> {
 
   const yaml = stringify(config);
   await Deno.writeTextFile(filePath, yaml);
-  printMessage('success', 'Successfully created configuration file');
+  printMessage("success", "Successfully created configuration file");
 }

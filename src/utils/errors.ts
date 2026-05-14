@@ -1,24 +1,26 @@
-export type CurlessErrorCategory = 'user' | 'config' | 'network' | 'internal';
+export type CurlessErrorCategory = "user" | "config" | "network" | "internal";
 
 export type CurlessErrorCode =
-  | 'CONFIG_NOT_FOUND'
-  | 'CONFIG_UNREADABLE'
-  | 'CONFIG_INVALID_YAML'
-  | 'SECRETS_FILE_MISSING'
-  | 'SECRETS_FILE_UNREADABLE'
-  | 'SECRET_NOT_FOUND'
-  | 'REQUEST_NAME_MISSING'
-  | 'REQUEST_NOT_FOUND'
-  | 'ENVIRONMENTS_MISSING'
-  | 'ENV_NOT_FOUND'
-  | 'ENV_NOT_SPECIFIED'
-  | 'BASE_URL_MISSING'
-  | 'DATA_TEMPLATE_NOT_FOUND'
-  | 'PATH_PARAM_MISMATCH'
-  | 'INVALID_HEADER'
-  | 'MANUAL_URL_MISSING'
-  | 'MANUAL_URL_INVALID'
-  | 'NETWORK_FAILURE';
+  | "CONFIG_NOT_FOUND"
+  | "CONFIG_UNREADABLE"
+  | "CONFIG_INVALID_YAML"
+  | "SECRETS_FILE_MISSING"
+  | "SECRETS_FILE_UNREADABLE"
+  | "SECRET_NOT_FOUND"
+  | "REQUEST_NAME_MISSING"
+  | "REQUEST_NOT_FOUND"
+  | "ENVIRONMENTS_MISSING"
+  | "ENV_NOT_FOUND"
+  | "ENV_NOT_SPECIFIED"
+  | "BASE_URL_MISSING"
+  | "DATA_TEMPLATE_NOT_FOUND"
+  | "PATH_PARAM_MISMATCH"
+  | "INVALID_HEADER"
+  | "MANUAL_URL_MISSING"
+  | "MANUAL_URL_INVALID"
+  | "AUTH_INVALID"
+  | "AUTH_UNSUPPORTED"
+  | "NETWORK_FAILURE";
 
 export interface CurlessErrorOptions {
   cause?: unknown;
@@ -37,7 +39,7 @@ export class CurlessError extends Error {
     options: CurlessErrorOptions = {},
   ) {
     super(message);
-    this.name = 'CurlessError';
+    this.name = "CurlessError";
     this.code = code;
     this.category = category;
     this.details = options.details;

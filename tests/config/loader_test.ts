@@ -1,11 +1,11 @@
-import { assertEquals, assertNotEquals, assertRejects } from '@std/assert';
-import { loadConfig } from '../../src/config/loader.ts';
-import { CurlessError } from '../../src/utils/errors.ts';
+import { assertEquals, assertNotEquals, assertRejects } from "@std/assert";
+import { loadConfig } from "../../src/config/loader.ts";
+import { CurlessError } from "../../src/utils/errors.ts";
 
 // Note: Test YAML configs omit the `secrets` section so loadSecrets
 // is a no-op (it checks config.secrets?.envFile and returns early).
 
-Deno.test('loadConfig - loads config from explicit path', async () => {
+Deno.test("loadConfig - loads config from explicit path", async () => {
   const tempDir = await Deno.makeTempDir();
   const yamlContent = `
 environments:
@@ -25,28 +25,28 @@ requests:
     assertNotEquals(config, null);
     assertEquals(
       config?.environments?.dev?.baseUrl,
-      'https://test.example.com',
+      "https://test.example.com",
     );
-    assertEquals(config?.requests?.getUsers?.method, 'GET');
-    assertEquals(config?.requests?.getUsers?.path, '/users');
+    assertEquals(config?.requests?.getUsers?.method, "GET");
+    assertEquals(config?.requests?.getUsers?.path, "/users");
   } finally {
     await Deno.remove(tempDir, { recursive: true });
   }
 });
 
 Deno.test(
-  'loadConfig - throws when explicit config file does not exist',
+  "loadConfig - throws when explicit config file does not exist",
   async () => {
     await assertRejects(
-      () => loadConfig('/definitely/nonexistent/curless.yaml'),
+      () => loadConfig("/definitely/nonexistent/curless.yaml"),
       CurlessError,
-      'was not found',
+      "was not found",
     );
   },
 );
 
 Deno.test(
-  'loadConfig - parses multiple environments and requests',
+  "loadConfig - parses multiple environments and requests",
   async () => {
     const tempDir = await Deno.makeTempDir();
     const yamlContent = `
@@ -74,12 +74,12 @@ requests:
       assertNotEquals(config, null);
       assertEquals(
         config?.environments?.prod?.baseUrl,
-        'https://prod.example.com',
+        "https://prod.example.com",
       );
-      assertEquals(config?.requests?.createUser?.method, 'POST');
+      assertEquals(config?.requests?.createUser?.method, "POST");
       assertEquals(
-        config?.requests?.createUser?.headers?.['Content-Type'],
-        'application/json',
+        config?.requests?.createUser?.headers?.["Content-Type"],
+        "application/json",
       );
     } finally {
       await Deno.remove(tempDir, { recursive: true });
@@ -87,7 +87,7 @@ requests:
   },
 );
 
-Deno.test('loadConfig - throws when discovered config is missing', async () => {
+Deno.test("loadConfig - throws when discovered config is missing", async () => {
   const tempDir = await Deno.makeTempDir();
   const originalCwd = Deno.cwd();
 
@@ -96,7 +96,7 @@ Deno.test('loadConfig - throws when discovered config is missing', async () => {
     await assertRejects(
       () => loadConfig(),
       CurlessError,
-      'Config file was not found',
+      "Config file was not found",
     );
   } finally {
     Deno.chdir(originalCwd);
@@ -104,16 +104,16 @@ Deno.test('loadConfig - throws when discovered config is missing', async () => {
   }
 });
 
-Deno.test('loadConfig - throws on invalid YAML', async () => {
+Deno.test("loadConfig - throws on invalid YAML", async () => {
   const tempDir = await Deno.makeTempDir();
   const configPath = `${tempDir}/curless.yaml`;
-  await Deno.writeTextFile(configPath, 'requests: [broken');
+  await Deno.writeTextFile(configPath, "requests: [broken");
 
   try {
     await assertRejects(
       () => loadConfig(configPath),
       CurlessError,
-      'Failed to parse YAML',
+      "Failed to parse YAML",
     );
   } finally {
     await Deno.remove(tempDir, { recursive: true });

@@ -4,14 +4,19 @@
     "jsr:@std/assert@1": "1.0.18",
     "jsr:@std/assert@^1.0.17": "1.0.18",
     "jsr:@std/cli@*": "1.0.17",
+    "jsr:@std/cli@1": "1.0.17",
     "jsr:@std/dotenv@*": "0.225.5",
+    "jsr:@std/dotenv@0.225": "0.225.5",
     "jsr:@std/fmt@^1.0.8": "1.0.8",
     "jsr:@std/fs@*": "1.0.18",
+    "jsr:@std/fs@1": "1.0.18",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@*": "1.1.0",
+    "jsr:@std/path@1": "1.1.0",
     "jsr:@std/path@^1.1.0": "1.1.0",
     "jsr:@std/testing@1": "1.0.17",
-    "jsr:@std/yaml@*": "1.0.7"
+    "jsr:@std/yaml@*": "1.0.7",
+    "jsr:@std/yaml@1": "1.0.7"
   },
   "jsr": {
     "@std/assert@1.0.18": {
@@ -54,8 +59,13 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1",
+      "jsr:@std/cli@1",
+      "jsr:@std/dotenv@0.225",
       "jsr:@std/fmt@^1.0.8",
-      "jsr:@std/testing@1"
+      "jsr:@std/fs@1",
+      "jsr:@std/path@1",
+      "jsr:@std/testing@1",
+      "jsr:@std/yaml@1"
     ]
   }
 }

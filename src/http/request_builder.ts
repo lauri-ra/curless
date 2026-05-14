@@ -1,11 +1,12 @@
-import { getSecret } from '../config/secrets.ts';
+import { getSecret } from "../config/secrets.ts";
 import {
   Config,
   EnvDetails,
   ParsedCommands,
   RequestDefinition,
-} from '../utils/types.ts';
-import { CurlessError } from '../utils/errors.ts';
+} from "../utils/types.ts";
+import { CurlessError } from "../utils/errors.ts";
+import { buildAuthHeader } from "../utils/auth.ts";
 
 /**
  * Parses the request name and path parameters from positional arguments.
@@ -16,14 +17,14 @@ function parseRequestNameAndParams(positionalArgs: string[]) {
 
   if (!requestNameInput) {
     throw new CurlessError(
-      'REQUEST_NAME_MISSING',
-      'user',
-      'Request name not provided. Choose one from your config or run `curless list`.',
+      "REQUEST_NAME_MISSING",
+      "user",
+      "Request name not provided. Choose one from your config or run `curless list`.",
     );
   }
 
-  if (requestNameInput.includes(':')) {
-    const [requestName, ...pathParams] = requestNameInput.split(':');
+  if (requestNameInput.includes(":")) {
+    const [requestName, ...pathParams] = requestNameInput.split(":");
     return { requestName, pathParams };
   }
 
@@ -38,8 +39,8 @@ function getRequestDefinition(config: Config, requestName: string) {
 
   if (!requestDefinition) {
     throw new CurlessError(
-      'REQUEST_NOT_FOUND',
-      'user',
+      "REQUEST_NOT_FOUND",
+      "user",
       `Request '${requestName}' was not found in configuration.`,
       { details: { requestName } },
     );
@@ -56,8 +57,8 @@ function getEnvironmentDetails(config: Config, env: string) {
     const envDetails = config.environments?.[env];
     if (!envDetails) {
       throw new CurlessError(
-        'ENV_NOT_FOUND',
-        'user',
+        "ENV_NOT_FOUND",
+        "user",
         `Environment '${env}' was not found in configuration.`,
         { details: { env } },
       );
@@ -67,9 +68,9 @@ function getEnvironmentDetails(config: Config, env: string) {
 
   if (!config.environments || Object.keys(config.environments).length === 0) {
     throw new CurlessError(
-      'ENVIRONMENTS_MISSING',
-      'config',
-      'No environments are defined in curless.yaml.',
+      "ENVIRONMENTS_MISSING",
+      "config",
+      "No environments are defined in curless.yaml.",
     );
   }
   // No flag provided, so we try to find a default environment.
@@ -80,9 +81,9 @@ function getEnvironmentDetails(config: Config, env: string) {
 
   // If we got here, it means there is no valid environment in the config.
   throw new CurlessError(
-    'ENV_NOT_SPECIFIED',
-    'user',
-    'Environment not specified. Use --env or mark one environment as default.',
+    "ENV_NOT_SPECIFIED",
+    "user",
+    "Environment not specified. Use --env or mark one environment as default.",
   );
 }
 
@@ -93,14 +94,14 @@ function getDataTemplate(config: Config, templateName: string): string {
   const dataTemplate = config.data_templates?.[templateName];
   if (!dataTemplate) {
     throw new CurlessError(
-      'DATA_TEMPLATE_NOT_FOUND',
-      'user',
+      "DATA_TEMPLATE_NOT_FOUND",
+      "user",
       `Data template '${templateName}' was not found in configuration.`,
       { details: { templateName } },
     );
   }
 
-  if (typeof dataTemplate === 'object' && dataTemplate !== null) {
+  if (typeof dataTemplate === "object" && dataTemplate !== null) {
     return JSON.stringify(dataTemplate);
   }
 
@@ -123,7 +124,7 @@ function resolveBody(
 
   if (cliData) {
     const trimmed = cliData.trim();
-    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
       return trimmed;
     }
     return getDataTemplate(config, cliData);
@@ -134,7 +135,10 @@ function resolveBody(
   }
 
   if (requestDefinition.data !== undefined) {
-    if (typeof requestDefinition.data === 'object' && requestDefinition.data !== null) {
+    if (
+      typeof requestDefinition.data === "object" &&
+      requestDefinition.data !== null
+    ) {
       return JSON.stringify(requestDefinition.data);
     }
     return String(requestDefinition.data);
@@ -160,15 +164,13 @@ function buildPath(
   // with placeholders from config, something is wrong and we log an error.
   if (placeholders.length !== pathParams.length) {
     throw new CurlessError(
-      'PATH_PARAM_MISMATCH',
-      'user',
-      `Path '${configuredPath}' requires ${
-        placeholders.length
-      } parameter(s), but ${
-        pathParams.length
-      } were given. (Request: ${requestName}, Params: [${pathParams.join(
-        ', ',
-      )}])`,
+      "PATH_PARAM_MISMATCH",
+      "user",
+      `Path '${configuredPath}' requires ${placeholders.length} parameter(s), but ${pathParams.length} were given. (Request: ${requestName}, Params: [${
+        pathParams.join(
+          ", ",
+        )
+      }])`,
       {
         details: {
           configuredPath,
@@ -197,29 +199,27 @@ function buildQueryString(commands: ParsedCommands): string {
   const queryParams = new URLSearchParams();
   // TODO: place these in some shared location.
   const knownCommandKeys = new Set([
-    '_',
-    'env',
-    'e',
-    'data',
-    'd',
-    'version',
-    'V',
-    'help',
-    'h',
-    'header',
-    'H',
-    'interactive',
-    'i',
-    'config',
-    'c',
-    'force',
-    'f',
-    'verbose',
-    'v',
-    // Exclude deno specific flags.
-    'output',
-    'allow-read',
-    'allow-net',
+    "_",
+    "env",
+    "e",
+    "data",
+    "d",
+    "auth",
+    "a",
+    "version",
+    "V",
+    "help",
+    "h",
+    "header",
+    "H",
+    "config",
+    "c",
+    "force",
+    "f",
+    "verbose",
+    "v",
+    "baseUrl",
+    "migrate",
   ]);
 
   // Append the query params that are not in the exlcusion list keys
@@ -244,19 +244,19 @@ function constructUrl(
 ): string {
   if (!envDetails.baseUrl) {
     throw new CurlessError(
-      'BASE_URL_MISSING',
-      'config',
-      `Base URL is not defined for environment '${commands.env ?? 'unknown'}'.`,
+      "BASE_URL_MISSING",
+      "config",
+      `Base URL is not defined for environment '${commands.env ?? "unknown"}'.`,
       { details: { env: commands.env } },
     );
   }
 
-  const baseUrl = envDetails.baseUrl.endsWith('/')
+  const baseUrl = envDetails.baseUrl.endsWith("/")
     ? envDetails.baseUrl.slice(0, -1)
     : envDetails.baseUrl;
 
   const finalPath = buildPath(requestDefinition.path, pathParams, requestName);
-  const pathSegment = finalPath.startsWith('/')
+  const pathSegment = finalPath.startsWith("/")
     ? finalPath.slice(1)
     : finalPath;
 
@@ -292,8 +292,8 @@ function replaceHeaderSecrets(
         processedValue = value.replace(match[0], secretValue);
       } else {
         throw new CurlessError(
-          'SECRET_NOT_FOUND',
-          'config',
+          "SECRET_NOT_FOUND",
+          "config",
           `Secret ${match[0]} was not found in the loaded secrets file.`,
           { details: { secretName } },
         );
@@ -320,7 +320,20 @@ export function resolveRequestDetails(
   const requestDefinition = getRequestDefinition(config, requestName);
   const envDetails = getEnvironmentDetails(config, commands.env as string);
   const body = resolveBody(config, commands, requestDefinition);
-  const headers = replaceHeaderSecrets(requestDefinition.headers);
+  const substitutedHeaders = replaceHeaderSecrets(requestDefinition.headers);
+
+  // Use Headers for case-insensitive merging so --auth can override
+  // a config-defined Authorization (regardless of header-key casing).
+  const headers = new Headers();
+  if (substitutedHeaders) {
+    for (const [key, value] of Object.entries(substitutedHeaders)) {
+      headers.set(key, value as string);
+    }
+  }
+  if (commands.auth) {
+    const [authKey, authValue] = buildAuthHeader(commands.auth);
+    headers.set(authKey, authValue);
+  }
 
   const fullUrl = constructUrl(
     envDetails,

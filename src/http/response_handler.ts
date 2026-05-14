@@ -1,5 +1,5 @@
-import { formatResponse } from '../output/response_formatter.ts';
-import { ResponseData } from '../utils/types.ts';
+import { formatResponse } from "../output/response_formatter.ts";
+import { ResponseData } from "../utils/types.ts";
 
 /**
  * Handles and parses the response

@@ -1,9 +1,9 @@
-import { parse } from 'jsr:@std/yaml';
-import { Config } from '../utils/types.ts';
-import { join, dirname, resolve } from 'jsr:@std/path';
-import { exists } from 'jsr:@std/fs';
-import { loadSecrets } from './secrets.ts';
-import { CurlessError } from '../utils/errors.ts';
+import { parse } from "@std/yaml";
+import { Config } from "../utils/types.ts";
+import { dirname, join, resolve } from "@std/path";
+import { exists } from "@std/fs";
+import { loadSecrets } from "./secrets.ts";
+import { CurlessError } from "../utils/errors.ts";
 
 /**
  * Traverses the directory from the given path upwards looking for a config file.
@@ -29,8 +29,8 @@ async function findAndReadFile(
         content = await Deno.readTextFile(configPath);
       } catch (error) {
         throw new CurlessError(
-          'CONFIG_UNREADABLE',
-          'config',
+          "CONFIG_UNREADABLE",
+          "config",
           `Config file '${configPath}' could not be read.`,
           { cause: error, details: { configPath } },
         );
@@ -65,23 +65,23 @@ export async function loadConfig(configPath?: string): Promise<Config> {
     } catch (error) {
       if (error instanceof Deno.errors.NotFound) {
         throw new CurlessError(
-          'CONFIG_NOT_FOUND',
-          'config',
+          "CONFIG_NOT_FOUND",
+          "config",
           `Config file '${configPath}' was not found.`,
           { cause: error, details: { configPath } },
         );
       }
 
       throw new CurlessError(
-        'CONFIG_UNREADABLE',
-        'config',
+        "CONFIG_UNREADABLE",
+        "config",
         `Config file '${configPath}' could not be read.`,
         { cause: error, details: { configPath } },
       );
     }
   } else {
     // Attempt to search for the config upwards from current directory.
-    const result = await findAndReadFile(Deno.cwd(), 'curless.yaml');
+    const result = await findAndReadFile(Deno.cwd(), "curless.yaml");
 
     if (result) {
       yamlString = result.content;
@@ -93,9 +93,9 @@ export async function loadConfig(configPath?: string): Promise<Config> {
 
   if (!yamlString || !foundConfigPath) {
     throw new CurlessError(
-      'CONFIG_NOT_FOUND',
-      'config',
-      'Config file was not found.',
+      "CONFIG_NOT_FOUND",
+      "config",
+      "Config file was not found.",
     );
   }
 
@@ -104,8 +104,8 @@ export async function loadConfig(configPath?: string): Promise<Config> {
     parsedConfig = parse(yamlString) as Config;
   } catch (error) {
     throw new CurlessError(
-      'CONFIG_INVALID_YAML',
-      'config',
+      "CONFIG_INVALID_YAML",
+      "config",
       `Failed to parse YAML in '${foundConfigPath}'.`,
       { cause: error, details: { configPath: foundConfigPath } },
     );

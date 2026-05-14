@@ -2,11 +2,14 @@
 
 ## Quick Start
 
-Create the default config:
+Create the default config in the current directory:
 
 ```bash
 curless init
 ```
+
+`curless` finds `curless.yaml` by walking upward from the current directory. Use
+`--config <path>` to point at a specific file.
 
 List all configured requests:
 
@@ -24,6 +27,25 @@ curless POST https://jsonplaceholder.typicode.com/posts \
   -d '{"name":"Alice"}'
 ```
 
+## Authentication
+
+`--auth` accepts two schemes and sets the `Authorization` header for you:
+
+```bash
+# Bearer token
+curless getUser --env prod --auth bearer:$TOKEN
+
+# HTTP Basic — base64-encodes user:password for you
+curless adminPing --env prod --auth basic:admin:$PASSWORD
+```
+
+Precedence:
+
+- An explicit `-H Authorization: ...` on the command line always wins over
+  `--auth`.
+- In config mode, `--auth` overrides any `Authorization` header set on the
+  configured request.
+
 ## Config Mode
 
 Use a request alias from `curless.yaml`:
@@ -35,7 +57,8 @@ curless getPostById:5 --env dev
 
 ## How `--data` Works
 
-The default `curless.yaml` created by `curless init` includes these request definitions:
+The default `curless.yaml` created by `curless init` includes these request
+definitions:
 
 ```yaml
 requests:
@@ -110,4 +133,16 @@ Body
 {
   "id": 101
 }
+```
+
+## Experimental: Postman import
+
+`--migrate <file>` imports a Postman v2.1 collection JSON into a
+`curless.postman.yaml` file. This is experimental and currently handles flat
+collections only — request bodies, variables, auth, and nested folders are
+**not** yet supported.
+
+```bash
+curless --migrate ./MyApi.postman_collection.json
+curless --migrate ./MyApi.postman_collection.json --baseUrl https://api.example.com
 ```
