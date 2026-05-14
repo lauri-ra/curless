@@ -57,3 +57,22 @@ Deno.test("initCurless - overwrites when overwrite is true", async () => {
   assertEquals(writtenContent.length > 0, true);
   assertStringIncludes(consoleSpy.calls[0].args[0], "Successfully created");
 });
+
+Deno.test("initCurless - generated config marks dev as the default environment", async () => {
+  using _statStub = stub(Deno, "stat", () => {
+    throw new Deno.errors.NotFound("File not found");
+  });
+  let writtenContent = "";
+  using _writeStub = stub(
+    Deno,
+    "writeTextFile", // deno-lint-ignore no-explicit-any
+    (...args: any[]) => {
+      writtenContent = args[1] as string;
+      return Promise.resolve();
+    },
+  );
+  using _consoleSpy = spy(console, "log");
+
+  await initCurless(false);
+  assertStringIncludes(writtenContent, "default: true");
+});

@@ -33,8 +33,9 @@ OPTIONS:
                            Explicit -H Authorization wins over --auth.
   -d, --data <value>       Request body. In config mode: a data_templates key
                            or raw JSON ({...} / [...]). In manual mode: raw.
-  -e, --env <name>         Environment to use. Defaults to the environment
-                           marked default: true in curless.yaml.
+  -e, --env <name>         Environment to use. If omitted, curless picks the
+                           environment marked default: true, or the only
+                           environment defined when there is just one.
   -H, --header <K:V>       Add a request header. Repeatable.
   -c, --config <path>      Use a specific curless.yaml instead of upward-search.
   -f, --force              Overwrite when used with 'curless init'.

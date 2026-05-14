@@ -55,6 +55,19 @@ curless getComments --postId=1 --env dev
 curless getPostById:5 --env dev
 ```
 
+### Environment Selection
+
+`--env` chooses which environment from `curless.yaml` to use. When `--env` is
+omitted, curless picks:
+
+1. The environment marked `default: true`, if any.
+2. Otherwise, the single configured environment when exactly one exists.
+3. If neither applies, curless errors and asks you to pass `--env` or mark a
+   default.
+
+The config produced by `curless init` ships with `default: true` on `dev`, so
+`curless createPost` works out of the box without `--env`.
+
 ## How `--data` Works
 
 The default `curless.yaml` created by `curless init` includes these request

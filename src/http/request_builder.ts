@@ -74,10 +74,14 @@ function getEnvironmentDetails(config: Config, env: string) {
     );
   }
   // No flag provided, so we try to find a default environment.
-  const defaultEntry = Object.entries(config.environments).find(
+  const envEntries = Object.entries(config.environments);
+  const defaultEntry = envEntries.find(
     ([_name, details]) => details.default === true,
   );
   if (defaultEntry) return defaultEntry[1];
+
+  // No default marked, but if there's exactly one environment, use it.
+  if (envEntries.length === 1) return envEntries[0][1];
 
   // If we got here, it means there is no valid environment in the config.
   throw new CurlessError(

@@ -170,6 +170,30 @@ Deno.test("resolveRequestDetails - throws when no default env and no --env flag"
   );
 });
 
+Deno.test("resolveRequestDetails - auto-selects the only environment when no --env and no default", () => {
+  const config = createMockConfig({
+    environments: {
+      staging: { baseUrl: "https://staging.example.com" },
+    },
+  });
+  const commands = createMockCommands({ _: ["getUsers"] });
+  const request = resolveRequestDetails(config, commands);
+
+  assertEquals(new URL(request.url).origin, "https://staging.example.com");
+});
+
+Deno.test("resolveRequestDetails - explicit --env still wins over singleton auto-select", () => {
+  const config = createMockConfig({
+    environments: {
+      staging: { baseUrl: "https://staging.example.com" },
+    },
+  });
+  const commands = createMockCommands({ _: ["getUsers"], env: "staging" });
+  const request = resolveRequestDetails(config, commands);
+
+  assertEquals(new URL(request.url).origin, "https://staging.example.com");
+});
+
 // --- Query parameters ---
 
 Deno.test("resolveRequestDetails - unknown CLI flags become query params", () => {

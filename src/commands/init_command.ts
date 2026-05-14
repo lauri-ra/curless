@@ -6,6 +6,7 @@ const config: Config = {
   environments: {
     dev: {
       baseUrl: "https://jsonplaceholder.typicode.com",
+      default: true,
     },
   },
   secrets: {
