@@ -11,6 +11,7 @@ export interface ParsedCommands {
   config?: string;
   migrate?: string;
   baseUrl?: string;
+  timeout?: string;
   [key: string]: unknown;
 }
 

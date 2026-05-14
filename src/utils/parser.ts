@@ -13,6 +13,7 @@ export function parseCliArgs(args: string[]): ParsedCommands {
       "config",
       "migrate",
       "baseUrl",
+      "timeout",
     ],
     alias: {
       h: "help",
@@ -24,6 +25,7 @@ export function parseCliArgs(args: string[]): ParsedCommands {
       c: "config",
       f: "force",
       v: "verbose",
+      t: "timeout",
     },
     collect: ["header", "H"],
     stopEarly: false,

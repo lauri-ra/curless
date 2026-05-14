@@ -27,6 +27,18 @@ curless POST https://jsonplaceholder.typicode.com/posts \
   -d '{"name":"Alice"}'
 ```
 
+## Timeouts
+
+Every request is aborted after 30 seconds by default. Override with
+`--timeout <seconds>`:
+
+```bash
+curless GET https://slow.example.com/big --timeout 120
+curless createPost --env dev -t 5
+```
+
+Timed-out requests exit non-zero with a `Request timed out after Ns` error.
+
 ## Authentication
 
 `--auth` accepts two schemes and sets the `Authorization` header for you:

@@ -4,6 +4,7 @@ import { executeRequest } from "../http/client.ts";
 import { handleResponse } from "../http/response_handler.ts";
 import { CurlessError } from "../utils/errors.ts";
 import { buildAuthHeader } from "../utils/auth.ts";
+import { parseTimeoutSeconds } from "../utils/timeout.ts";
 
 function parseHeader(header: string): [string, string] {
   const separatorIndex = header.indexOf(":");
@@ -83,6 +84,7 @@ export async function handleManualMode(commands: ParsedCommands) {
   });
 
   // Call HTTP request function
-  const response = await executeRequest(request);
+  const timeoutSeconds = parseTimeoutSeconds(commands.timeout);
+  const response = await executeRequest(request, { timeoutSeconds });
   return await handleResponse(request, response, commands.verbose);
 }

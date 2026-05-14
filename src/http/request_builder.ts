@@ -224,6 +224,8 @@ function buildQueryString(commands: ParsedCommands): string {
     "v",
     "baseUrl",
     "migrate",
+    "timeout",
+    "t",
   ]);
 
   // Append the query params that are not in the exlcusion list keys

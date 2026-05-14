@@ -39,6 +39,7 @@ OPTIONS:
   -H, --header <K:V>       Add a request header. Repeatable.
   -c, --config <path>      Use a specific curless.yaml instead of upward-search.
   -f, --force              Overwrite when used with 'curless init'.
+  -t, --timeout <seconds>  Abort the request after N seconds. Default: 30.
   -v, --verbose            Show response headers.
   -h, --help               Show this help message.
   -V, --version            Show version.

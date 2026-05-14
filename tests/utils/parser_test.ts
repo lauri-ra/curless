@@ -59,6 +59,11 @@ Deno.test("parseCliArgs - migrate flag", () => {
   );
 });
 
+Deno.test("parseCliArgs - timeout flag and alias", () => {
+  assertEquals(parseCliArgs(["--timeout", "60"]).timeout, "60");
+  assertEquals(parseCliArgs(["-t", "5"]).timeout, "5");
+});
+
 Deno.test("parseCliArgs - headers collected into array", () => {
   const result = parseCliArgs([
     "-H",

@@ -20,7 +20,9 @@ export type CurlessErrorCode =
   | "MANUAL_URL_INVALID"
   | "AUTH_INVALID"
   | "AUTH_UNSUPPORTED"
-  | "NETWORK_FAILURE";
+  | "NETWORK_FAILURE"
+  | "TIMEOUT"
+  | "TIMEOUT_INVALID";
 
 export interface CurlessErrorOptions {
   cause?: unknown;

@@ -49,9 +49,14 @@ export function formatError(error: unknown): string {
       case "INVALID_HEADER":
       case "MANUAL_URL_MISSING":
       case "MANUAL_URL_INVALID":
+      case "AUTH_INVALID":
+      case "AUTH_UNSUPPORTED":
+      case "TIMEOUT_INVALID":
         return error.message;
       case "NETWORK_FAILURE":
         return `Request failed: ${error.message}`;
+      case "TIMEOUT":
+        return error.message;
     }
   }
 

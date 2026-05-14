@@ -95,6 +95,11 @@ Auth helpers
 - `--auth basic:USER:PASSWORD` and `--auth bearer:TOKEN` produce the right
   `Authorization` header. Explicit `-H Authorization:` still wins.
 
+Timeouts
+
+- Every request is aborted after 30 seconds by default. Override with
+  `--timeout <seconds>` / `-t`.
+
 Verbose mode
 
 - `-v` / `--verbose` prints response headers alongside the body.
