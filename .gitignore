@@ -4,4 +4,9 @@
 !README.md
 !ROADMAP.md
 !USAGE.md
+!CLAUDE.md
+!.claude/commands/*.md
 curless
+
+# Per-user Claude Code overrides — share team defaults via settings.json
+.claude/settings.local.json

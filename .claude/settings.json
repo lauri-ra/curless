@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(deno task test)",
+      "Bash(deno task test:*)",
+      "Bash(deno task lint)",
+      "Bash(deno task fmt)",
+      "Bash(deno task fmt:check)",
+      "Bash(deno task check)",
+      "Bash(deno task start)",
+      "Bash(deno task compile)",
+      "Bash(deno fmt:*)",
+      "Bash(deno fmt)",
+      "Bash(deno check:*)",
+      "Bash(deno lint:*)",
+      "Bash(deno test:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Read",
+      "Grep",
+      "Glob"
+    ]
+  }
+}
